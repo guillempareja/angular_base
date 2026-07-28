@@ -4,6 +4,7 @@
 
 | Skill | Invocación | Para qué sirve |
 |---|---|---|
+| `new-project` | `@new-project` | Convertir este template en una aplicación real: renombrar placeholders, purgar el dominio de ejemplo, decidir el flujo de auth y montar los dominios reales |
 | `api-endpoint` | `@api-endpoint` | Crear un endpoint: servicio en `core/api/{familia}/`, tipos Request/Response y mock handler MSW en `fake-backend/` con su wiring |
 | `success-notifications` | `@success-notifications` | Añadir headers `HttpCustomHeader` (éxito custom, éxito por defecto, ocultar loader) a métodos de servicio API y sus tags en `httpRequest.*` del i18n |
 | `i18n` | `@i18n` | Añadir, actualizar o revisar cualquier texto visible al usuario: convención de claves `{domain}.{component}.{grupo}.{clave}` en camelCase, `TranslatePipe` en templates, `translate.instant()` en TS, `common.*` para acciones comunes |

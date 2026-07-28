@@ -1,298 +1,149 @@
-# Mail-Box 📮
+# App Template 🧩
 
-> **Enterprise Angular Template** - Un cascarón arquitectural escalable y reutilizable para proyectos Angular modernos
-
-Este proyecto es un **template base** diseñado para ser reutilizado como punto de partida en múltiples proyectos empresariales. No es una aplicación funcional por sí misma, sino una **arquitectura sólida** con las mejores prácticas implementadas.
-
-## 🚀 Características Principales
-
-- **Angular 20** con standalone components
-- **Signals** para manejo de estado reactivo
-- **Arquitectura modular** (Core/Shared/Pages)
-- **MockServiceWorker (MSW)** para desarrollo y testing
-- **HTTP Interceptors** completos (auth, loading, errors)
-- **SCSS organizado** con metodología ITCSS
-- **TypeScript** con tipado fuerte
-- **Path aliases** configurados
-- **Lazy loading** implementado
-- **Testing setup** con Karma/Jasmine
-
-## 🏗️ Arquitectura del Proyecto
-
-### Frontend Structure
-```
-src/app/
-├── core/                   # 🔧 LÓGICA DE NEGOCIO Y SINGLETON
-│   ├── guards/            # Guards de protección (auth, roles, permisos)
-│   ├── interceptors/      # HTTP interceptors globales
-│   └── services/          # Servicios singleton con estado de aplicación
-├── pages/                  # 📄 Páginas/rutas principales de la aplicación
-│   └── [feature]/         # Cada feature como módulo independiente
-├── shared/                 # 🔄 RECURSOS REUTILIZABLES SIN LÓGICA DE NEGOCIO
-│   ├── components/        # Componentes UI puros y reutilizables
-│   ├── constants/         # Constantes y configuraciones
-│   ├── directives/        # Directivas genéricas
-│   ├── enums/            # Enumeraciones y tipos auxiliares
-│   ├── models/           # Interfaces y tipos de datos
-│   ├── pipes/            # Pipes de transformación de datos
-│   ├── services/         # Servicios auxiliares sin estado
-│   └── utils/            # Funciones puras y helpers
-```
-
-#### 🎯 **Core vs Shared - Diferencias Clave**
-
-**📍 CORE** - *Lógica de Negocio y Estado Global*
-- **Servicios con Estado**: Mantienen datos globales de la aplicación
-- **Lógica de Negocio**: Reglas específicas del dominio y flujos complejos
-- **Singleton**: Una sola instancia por aplicación (`providedIn: 'root'`)
-- **Guards e Interceptors**: Protección y procesamiento automático
-- **Gestión de Datos**: APIs, autenticación, configuración global
-- **Efectos Secundarios**: Pueden modificar el estado de la aplicación
-
-**📍 SHARED** - *Recursos Reutilizables y Funciones Puras*
-- **Servicios de Utilidades**: Solo funciones reutilizables sin estado
-- **Componentes UI**: Presentacionales sin lógica de negocio
-- **Funciones Puras**: Sin efectos secundarios, misma entrada = misma salida
-- **Tipos y Modelos**: Definiciones de datos compartidas
-- **Pipes y Directivas**: Transformaciones genéricas
-- **Helpers y Utils**: Funciones auxiliares reutilizables en cualquier contexto
-
-### Backend Structure (Fake API)
-```
-api/
-├── controllers/           # 🎮 Lógica de los endpoints
-├── mocks/                # 📊 Datos simulados para desarrollo
-├── routes/               # 🛣️ Definición de rutas
-├── public/               # 📁 Archivos estáticos
-├── config.js             # ⚙️ Configuración del servidor
-└── index.js              # 🚀 Punto de entrada del servidor
-```
-
-### Styles Architecture (SCSS)
-```
-src/styles/
-├── _imports.scss         # 📥 Imports comunes (variables, mixins)
-├── app.scss             # 🎨 Punto de entrada principal
-├── base/                # 🏗️ Estilos base y fundacionales
-│   ├── _normalize.scss   # Reset CSS
-│   ├── _variables.scss   # Variables globales
-│   └── _globals.scss     # Estilos globales
-├── ui/                  # 🧩 Componentes de interfaz
-│   ├── _grid.scss       # Sistema de grid
-│   ├── _icons.scss      # Iconografía
-│   ├── _layouts.scss    # Layouts principales
-│   └── _texts.scss      # Tipografía
-└── utils/               # 🛠️ Utilidades y herramientas
-    ├── _functions.scss   # Funciones SCSS
-    └── _mixins.scss     # Mixins reutilizables
-```
-
-## 🛠️ Configuración y Desarrollo
-
-### Requisitos Previos
-- Node.js 18+
-- npm o yarn
-- Angular CLI 20+
-
-### Instalación y Ejecución
-```bash
-# Instalar dependencias
-npm install
-
-# Ejecutar en modo desarrollo (con MSW)
-npm start
-
-# Ejecutar con environment de test
-npm run start:tst
-
-# Tests
-npm test
-
-# Build para producción
-npm run build
-```
-
-### URLs de Desarrollo
-- **Frontend**: http://localhost:4200
-- **Mock API**: Interceptado por MockServiceWorker
-
-## 🎯 Funcionalidades del Template
-
-### ✅ Sistema de Autenticación Base
-- Estructura para login/logout
-- Manejo de tokens JWT
-- Refresh token automático
-- Guards de protección de rutas
-- Interceptor de autenticación
-
-### ✅ Gestión de Estado
-- Signals para reactividad
-- Servicios singleton para estado global
-- Loading states centralizados
-- Patrón de estado inmutable
-
-### ✅ Componentes UI Base
-- Layout principal (header/footer)
-- Sistema de modals genérico
-- Loader global configurable
-- Manejo de errores con notificaciones
-
-### ✅ Utilidades y Helpers
-- Form utilities y validaciones genéricas
-- Date utilities
-- Error message pipes
-- Promise utilities
-- Delay utilities para desarrollo
-
-### ✅ Configuración Multi-entorno
-- Development, Testing, Production
-- Variables de entorno por ambiente
-- Build configurations optimizadas
-
-## 📋 Convenciones y Estándares
-
-### Nomenclatura
-- **Archivos**: kebab-case (`my-component.ts`)
-- **Clases**: PascalCase (`MyComponent`)
-- **Variables/métodos**: camelCase (`myVariable`)
-- **Constantes**: SCREAMING_SNAKE_CASE (`MY_CONSTANT`)
-
-### Estructura de Archivos
-```
-feature-name/
-├── feature-name.component.html
-├── feature-name.component.scss
-├── feature-name.component.ts
-└── feature-name.component.spec.ts
-```
-
-### Path Aliases Configurados
-```typescript
-// 🔧 CORE - Servicios con lógica de negocio y estado
-import { AuthService } from '@core/services/auth.service';        // Maneja autenticación y estado del usuario
-import { DataService } from '@core/services/data.service';        // Gestión de datos de la aplicación
-import { ConfigService } from '@core/services/config.service';    // Configuración global singleton
-
-// 🔄 SHARED - Servicios con funciones reutilizables (sin estado)
-import { FormService } from '@shared/services/form.service';      // Utilidades para formularios
-import { ValidationService } from '@shared/services/validation.service'; // Validadores reutilizables
-import { HttpUtilsService } from '@shared/services/http-utils.service';   // Helpers para HTTP
-
-// 🧩 SHARED - Componentes reutilizables (sin lógica de negocio)
-import { ModalComponent } from '@shared/components/modal/modal.component';
-import { ButtonComponent } from '@shared/components/button/button.component';
-
-// 🛠️ SHARED - Utilidades puras (funciones sin efectos secundarios)
-import { dateUtils } from '@shared/utils/dates.utils';
-import { stringUtils } from '@shared/utils/string.utils';
-```
-
-## 🚀 Cómo Usar Este Template
-
-### 1. Clonar y Personalizar
-```bash
-git clone [repo-url] my-new-project
-cd my-new-project
-# Cambiar nombre del proyecto en package.json y angular.json
-```
-
-### 2. Configurar Entornos
-- Actualizar `src/environments/` con tus URLs de API
-- Modificar `api/config.js` según necesidades
-
-### 3. Personalizar para tu Proyecto
-- Actualizar estilos en `src/styles/base/_variables.scss`
-- Cambiar assets (logo, favicon) en `src/assets/`
-- Modificar layout base en componentes shared
-- Adaptar la estructura de páginas según tu dominio
-
-### 4. Añadir Nuevas Features
-```bash
-# Generar nueva página/feature
-ng generate component pages/feature-name --standalone
-
-# Generar servicio de negocio (Core)
-ng generate service core/services/feature-service
-
-# Generar componente reutilizable (Shared)
-ng generate component shared/components/ui-component --standalone
-
-# Generar utilidad pura (Shared)
-# Crear manualmente en shared/utils/feature.utils.ts
-```
-
-#### 📝 **Guía de Decisión: ¿Core o Shared?**
-
-**➡️ Usar CORE cuando:**
-- El servicio mantiene estado de aplicación
-- Implementa lógica de negocio específica
-- Necesita ser singleton
-- Maneja autenticación, permisos, configuración global
-
-**➡️ Usar SHARED cuando:**
-- El componente es puramente presentacional
-- La utilidad no tiene efectos secundarios
-- Se puede reutilizar en múltiples contextos
-- No depende de lógica de negocio específica
-
-## 🧪 Testing Strategy
-
-### Unit Tests
-```bash
-npm test                    # Ejecutar tests
-npm run test:watch         # Modo watch
-npm run test:coverage      # Con coverage
-```
-
-### Estructura de Tests
-- **Componentes**: `*.component.spec.ts`
-- **Servicios**: `*.service.spec.ts`
-- **Pipes**: `*.pipe.spec.ts`
-- **Guards**: `*.guard.spec.ts`
-
-## 📦 Dependencias Principales
-
-### Frontend
-- **@angular/core**: Framework principal
-- **@ngneat/cashew**: HTTP caching
-- **ngx-toastr**: Notificaciones toast
-- **date-fns**: Utilidades de fechas
-- **lodash**: Utilidades de JavaScript
-
-### Development
-- **msw**: MockServiceWorker para interceptar requests
-- **prettier**: Formateo de código
-- **eslint**: Linting
-
-## 🔮 Roadmap y Extensiones
-
-### Próximas Mejoras
-- [ ] Implementar NgRx para estado complejo
-- [ ] Añadir componente de tabla reutilizable
-- [ ] Sistema de permisos granular
-- [ ] PWA configuration
-- [ ] Docker setup
-- [ ] CI/CD pipelines
-
-### Extensiones Sugeridas
-- **Internacionalización**: Angular i18n
-- **UI Library**: Angular Material o PrimeNG
-- **Charts**: Chart.js o D3.js
-- **Maps**: Leaflet o Google Maps
-- **Rich Text**: Quill o TinyMCE
-
-## 🤝 Contribución
-
-Este template está diseñado para ser:
-- **Forkeable**: Crear nuevos proyectos basados en esta estructura
-- **Extensible**: Añadir nuevas features manteniendo la arquitectura
-- **Mantenible**: Código limpio y bien documentado
-- **Escalable**: Preparado para equipos grandes
-
-## 📄 Licencia
-
-MIT License - Ver archivo LICENSE para más detalles.
+> **Cascarón Angular 20 listo para convertirse en cualquier aplicación.**
+> No es una app funcional: es la arquitectura, la infraestructura y las convenciones ya montadas,
+> más un dominio de ejemplo desechable que enseña cómo se programa aquí.
 
 ---
 
-**¿Dudas o sugerencias?** Este template está en constante evolución. ¡Contribuye para mejorarlo! 🚀
+## 🚀 Arrancar un proyecto nuevo (la vía rápida)
+
+Este repositorio está preparado para que **una IA lo transforme en el proyecto real a partir de un
+solo prompt**. Clona, instala y pide el arranque:
+
+```bash
+git clone <repo-url> mi-proyecto
+cd mi-proyecto
+npm install
+```
+
+En Claude Code:
+
+```
+/new-project Una app para gestionar expedientes: listado con filtros, alta y edición, y login corporativo
+```
+
+En Copilot: `@new-project` + la misma descripción.
+
+La skill [`new-project`](.github/skills/new-project/SKILL.md) se encarga de todo el ciclo:
+renombrar los placeholders, purgar el dominio de ejemplo, decidir si se conserva el flujo de
+autenticación, montar los dominios reales con sus mocks y dejar la documentación al día.
+
+### …o a mano
+
+```bash
+npm run rename -- "Gestión de Expedientes"            # slug derivado del nombre
+npm run rename -- "Gestión de Expedientes" --slug exp # slug explícito
+npm run rename -- "Gestión de Expedientes" --dry      # ver qué cambiaría
+```
+
+Después: renombrar la carpeta del repo, ajustar `src/environments/`, y seguir la checklist de la
+skill `new-project`.
+
+---
+
+## 🏷️ Placeholders del template
+
+Todo lo que hay que sustituir para que el proyecto deje de ser un cascarón:
+
+| Placeholder | Dónde vive | Sustituir por |
+|---|---|---|
+| `app-template` | `package.json`, `angular.json` (nombre del proyecto y `buildTarget`), docs | Slug técnico en kebab-case |
+| `App Template` | `src/index.html` (`<title>`), `src/assets/i18n/es.json` (`app.name`), docs | Nombre visible de la aplicación |
+| Carpeta del repo | Sistema de ficheros | El slug técnico (**a mano**, con el editor cerrado) |
+| `https://api.example.com` | `src/environments/environment.prod.ts` | URL real de la API de producción |
+| `https://api-tst.example.com` | `src/environments/environment.tst.ts` | URL real de la API de test |
+| Dominio `example` | `src/app/core/api/example/`, `src/fake-backend/handlers/example/` | Borrar y crear los dominios reales |
+| Página `main` | `src/app/pages/main/` | Primera pantalla real (ojo a la ruta `**`) |
+| Paleta de color | `src/styles/base/_variables.scss` | Colores de marca del proyecto |
+| Favicon | `src/assets/images/favicon.ico` | Icono del proyecto |
+
+Los dos primeros los cubre `npm run rename`. El resto es decisión de proyecto.
+
+---
+
+## 📚 Documentación
+
+| Documento | Para qué |
+|---|---|
+| [`ARCHITECTURE.md`](ARCHITECTURE.md) | **Fuente de verdad**: arquitectura y forma de programar, agnóstica de negocio |
+| [`CLAUDE.md`](CLAUDE.md) / [`.github/copilot-instructions.md`](.github/copilot-instructions.md) | Resumen operativo para los agentes de IA |
+| [`.github/skills/SKILLS.md`](.github/skills/SKILLS.md) | Skills locales invocables |
+
+---
+
+## 🧱 Qué trae montado
+
+- **Angular 20** standalone + **signals**, `ChangeDetectionStrategy.OnPush`, control flow `@if`/`@for`.
+- **Arquitectura por capas**: `core/` (api, guards, interceptors, services) · `pages/` (vertical
+  slices de dominio) · `shared/` (reutilizables sin lógica de negocio).
+- **Capa API tipada** en `core/api/{familia}/` con `firstValueFrom` y URLs relativas.
+- **Fake backend con MSW** (`src/fake-backend/`): la app arranca sin backend real.
+- **Interceptor HTTP** con token, loader global, manejo de errores y toasts (`ngx-toastr`).
+- **Auth de ejemplo**: login, guard, refresh token automático — eliminable de una pieza.
+- **i18n** con `@ngx-translate` (`src/assets/i18n/es.json`), cero texto hardcodeado.
+- **SCSS propio** (sin librería corporativa): variables, mixins, grid, layouts en `src/styles/`.
+- **Utils y validaciones** reutilizables: fechas, formularios, promesas, objetos, validadores.
+- **Calidad**: ESLint + Prettier + Stylelint, path aliases (`@core/`, `@shared/`, `@pages/`),
+  configuración multi-entorno (dev / tst / prod), tests con Jasmine + Karma.
+
+### Estructura
+
+```
+src/app/
+├── core/              # Infraestructura y estado global (singleton)
+│   ├── api/           # Un folder por familia de endpoint: service + types
+│   ├── guards/        # Protección de rutas
+│   ├── interceptors/  # Token, loader, errores
+│   └── services/      # Servicios con estado (auth, loader, modales…)
+├── pages/             # Dominios de negocio — vertical slices
+└── shared/            # Reutilizables entre 2+ dominios (sin lógica de negocio)
+    ├── components/  constants/  directives/  enums/  models/
+    └── pipes/  services/  utils/  validations/
+
+src/fake-backend/      # MSW: handlers y mocks espejo de cada endpoint
+src/environments/      # environment.ts (dev) · .tst.ts · .prod.ts
+src/styles/            # base/ (variables, globals) · ui/ (grid, layouts) · utils/ (mixins)
+```
+
+**¿Core o Shared?** Core = estado global, singleton, lógica de negocio, efectos secundarios.
+Shared = presentacional, puro, reutilizable, sin dominio. Un fichero nace en el nivel más bajo
+posible y solo sube cuando aparece un **segundo consumidor real**. Detalle en `ARCHITECTURE.md` §3.
+
+---
+
+## 🛠️ Desarrollo
+
+Requisitos: Node.js 18+ y Angular CLI 20+.
+
+```bash
+npm install         # instalar dependencias
+npm start           # dev server con MSW → http://localhost:4200
+npm run start:tst   # dev server contra la API de test
+npm test            # tests (Jasmine + Karma)
+npm run build       # build de producción
+npm run format      # prettier + stylelint --fix (obligatorio antes de commitear)
+```
+
+El mock backend se activa con `useMSW: true` en `src/environments/environment.ts`: ponlo a `false`
+para atacar una API real en desarrollo.
+
+---
+
+## 📋 Convenciones (resumen)
+
+- Ficheros kebab-case: `*.component.ts`, `*.service.ts`, `*.types.ts`, `*.enum.ts`, `*.utils.ts`.
+- Clases `PascalCase`, variables y métodos `camelCase`, constantes `SCREAMING_SNAKE_CASE`.
+- `type` siempre (nunca `interface` para datos), sin `any`, `import type` para tipos.
+- Código, comentarios y nombres de fichero en **inglés**; textos de usuario en **español** vía i18n.
+- Commits: conventional commits (`feat:`, `fix:`, `refactor:`…).
+
+La versión completa y normativa está en [`ARCHITECTURE.md`](ARCHITECTURE.md).
+
+---
+
+## 🤝 Mantener el template
+
+Las mejoras genéricas (utils, componentes base, reglas de arquitectura) vuelven a este repositorio;
+la lógica de dominio de cada proyecto **nunca**. Si añades una convención nueva, documéntala en
+`ARCHITECTURE.md` y, si merece automatizarse, crea una skill con `@create-skill`.

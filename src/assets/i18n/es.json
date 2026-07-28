@@ -1,7 +1,11 @@
 {
   "common": {
     "cancel": "Cancelar",
-    "accept": "Aceptar"
+    "accept": "Aceptar",
+    "logout": "Salir"
+  },
+  "app": {
+    "name": "App Template"
   },
   "httpRequest": {
     "error": {
@@ -41,7 +45,9 @@
     "submitButton": "Acceder"
   },
   "main": {
-    "welcomeMessage": "¡Hola! Bienvenido a la aplicación de migraciones"
+    "welcomeMessage": "¡Hola! Bienvenido a {{appName}}",
+    "exampleTitle": "Llamada de ejemplo a la API",
+    "exampleEmpty": "Sin respuesta todavía."
   },
   "globalLoader": {
     "loading": "Cargando..."

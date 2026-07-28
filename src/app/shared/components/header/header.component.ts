@@ -8,11 +8,12 @@ import {
   inject,
 } from '@angular/core';
 import { AuthService } from '@core/services/auth.service';
+import { TranslatePipe } from '@ngx-translate/core';
 import { NgPipesModule } from 'ngx-pipes';
 
 @Component({
   selector: 'header',
-  imports: [CommonModule, NgPipesModule],
+  imports: [CommonModule, NgPipesModule, TranslatePipe],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

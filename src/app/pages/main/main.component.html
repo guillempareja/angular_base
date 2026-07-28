@@ -1,1 +1,8 @@
-<h1>{{ 'main.welcomeMessage' | translate }}</h1>
+<h1>
+  {{ 'main.welcomeMessage' | translate: { appName: 'app.name' | translate } }}
+</h1>
+
+<section>
+  <h2>{{ 'main.exampleTitle' | translate }}</h2>
+  <p>{{ example()?.example ?? ('main.exampleEmpty' | translate) }}</p>
+</section>

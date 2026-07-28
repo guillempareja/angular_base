@@ -1,7 +1,7 @@
 @use 'sass:math';
 
 @function rem($size) {
-  $remValue: math.div($size, 16);
+  $rem-value: math.div($size, 16);
 
-  @return #{$remValue}rem;
+  @return #{$rem-value}rem;
 }

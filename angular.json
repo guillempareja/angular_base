@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "mailbox": {
+    "app-template": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -96,13 +96,13 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "mailbox:build:production"
+              "buildTarget": "app-template:build:production"
             },
             "development": {
-              "buildTarget": "mailbox:build:development"
+              "buildTarget": "app-template:build:development"
             },
             "tst": {
-              "buildTarget": "mailbox:build:tst"
+              "buildTarget": "app-template:build:tst"
             }
           },
           "defaultConfiguration": "development"
@@ -110,7 +110,7 @@
         "extract-i18n": {
           "builder": "@angular/build:extract-i18n",
           "options": {
-            "buildTarget": "mailbox:build"
+            "buildTarget": "app-template:build"
           }
         },
         "test": {

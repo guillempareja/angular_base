@@ -1,8 +1,9 @@
 {
-  "name": "BaseProyect",
+  "name": "app-template",
   "version": "0.0.1",
   "scripts": {
     "ng": "ng",
+    "rename": "node scripts/rename-project.mjs",
     "start": "ng serve",
     "start:tst": "ng serve --configuration=tst",
     "build": "ng build",

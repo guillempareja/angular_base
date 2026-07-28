@@ -1,4 +1,4 @@
-# Copilot Instructions — Mail Box
+# Copilot Instructions — App Template
 
 ## Fuente de verdad
 
@@ -7,8 +7,17 @@ La guía completa de arquitectura y forma de programar está en [`ARCHITECTURE.m
 es solo el resumen operativo.
 
 Para tareas concretas existen **skills locales** en [`.github/skills/`](./skills/SKILLS.md):
-`@api-endpoint`, `@success-notifications`, `@i18n`, `@testing`, `@track-todos`, `@create-skill`.
-Cargar la skill correspondiente antes de generar código de ese tipo.
+`@new-project`, `@api-endpoint`, `@success-notifications`, `@i18n`, `@testing`, `@track-todos`,
+`@create-skill`. Cargar la skill correspondiente antes de generar código de ese tipo.
+
+---
+
+## Este repo es un template
+
+Mientras el proyecto siga llamándose `App Template` / `app-template`, es un **cascarón sin dominio
+propio**. Si el usuario describe la aplicación que quiere construir, cargar `@new-project` antes de
+tocar nada: renombra los placeholders, purga el dominio `example` y monta los dominios reales.
+Placeholders y pasos manuales: [`README.md`](../README.md) § Placeholders.
 
 ---
 
@@ -20,7 +29,7 @@ toasts con ngx-toastr, caché HTTP con @ngneat/cashew.
 
 ```
 core/      Infraestructura: api/ (servicios HTTP, ver abajo), guards/, interceptors/, services/
-pages/     Dominios de negocio (login/, main/) — vertical slices
+pages/     Dominios de negocio (login/, main/ — de ejemplo) — vertical slices
 shared/    Reutilizables entre 2+ dominios: components/, enums/, models/, pipes/, services/, utils/, validations/
 ```
 

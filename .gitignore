@@ -29,6 +29,9 @@ bun.lockb
 !.vscode/extensions.json
 .history/*
 
+# Claude Code (los comandos compartidos sí se versionan)
+.claude/settings.local.json
+
 # Miscellaneous
 /.angular/cache
 .sass-cache/
