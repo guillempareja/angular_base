@@ -6,7 +6,7 @@ import {
   OnInit,
 } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
-import { ApiService } from '@core/services/api.service';
+import { ExampleService } from '@core/api/example/example.service';
 
 @Component({
   selector: 'app-main',
@@ -17,11 +17,11 @@ import { ApiService } from '@core/services/api.service';
 })
 export default class MainComponent implements OnInit {
   // Injections
-  private apiService = inject(ApiService);
+  private exampleService = inject(ExampleService);
 
   // Methods
   async ngOnInit(): Promise<void> {
-    const response = await this.apiService.getExample();
+    const response = await this.exampleService.getExample();
     console.log(response);
   }
 }

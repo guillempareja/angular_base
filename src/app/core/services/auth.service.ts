@@ -1,9 +1,10 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { LoginBody, LoginResponse } from '@shared/models/login.types';
-import { ApiService } from '@core/services/api.service';
 import { catchError, Observable, tap, throwError } from 'rxjs';
-import { RefreshTokenResponse } from '@shared/models/refresh-token.types';
+import { LoginService } from '@core/api/login/login.service';
+import { RefreshTokenService } from '@core/api/refresh-token/refresh-token.service';
+import type { LoginRequest, LoginResponse } from '@core/api/login/login.types';
+import type { RefreshTokenResponse } from '@core/api/refresh-token/refresh-token.types';
 
 @Injectable({
   providedIn: 'root',
@@ -11,14 +12,15 @@ import { RefreshTokenResponse } from '@shared/models/refresh-token.types';
 export class AuthService {
   // Injections
   private router = inject(Router);
-  private apiService = inject(ApiService);
+  private loginService = inject(LoginService);
+  private refreshTokenService = inject(RefreshTokenService);
 
   // Data
   public userData = signal<LoginResponse | null>(null);
 
   // Methods
-  public async login(credentials: LoginBody): Promise<void> {
-    const response = await this.apiService.login(credentials);
+  public async login(credentials: LoginRequest): Promise<void> {
+    const response = await this.loginService.login(credentials);
     localStorage.setItem('userData', JSON.stringify(response));
     this.userData.set(response);
     this.router.navigate(['/main']);
@@ -37,7 +39,7 @@ export class AuthService {
 
     const userData: LoginResponse = JSON.parse(storedUserData!);
 
-    return this.apiService.refreshToken(userData.refreshToken).pipe(
+    return this.refreshTokenService.refreshToken(userData.refreshToken).pipe(
       tap((response) => {
         const updatedUserData = {
           ...userData,

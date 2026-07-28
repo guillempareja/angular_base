@@ -9,6 +9,9 @@
       ],
       "@core/*": [
         "src/app/core/*"
+      ],
+      "@pages/*": [
+        "src/app/pages/*"
       ]
     },
     "outDir": "./dist/out-tsc",
