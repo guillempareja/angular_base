@@ -130,5 +130,6 @@ Hook `pre-push` ejecuta `npm run test:ci`.
 - [ ] API: `firstValueFrom` + URL relativa; mock MSW espejo creado
 - [ ] SCSS con `@use 'imports' as *` + `:host`; variables/mixins; sin redefinir clases globales
 - [ ] Todo texto visible con `| translate` / `translate.instant()`
+- [ ] Accesibilidad: `type` en `<button>`, `alt` en imágenes, `<label>` asociado, interactivos con teclado
 - [ ] Early returns; llaves siempre; sin `subscribe()`; sin mutar signals
 - [ ] TODOs registrados en `TODOS.md`; commit con conventional commits

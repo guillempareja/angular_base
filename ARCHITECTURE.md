@@ -629,6 +629,11 @@ ver skill `@track-todos`). Formato de fila:
   (`consistent-type-definitions`), `import type` / `type X` inline para imports de tipos
   (`consistent-type-imports`), sin `any`, sin valores de enum duplicados, llaves siempre (`curly`)
   y `OnPush` obligatorio en componentes.
+- **Accesibilidad** en los templates `.html`: reglas a11y de `@angular-eslint/template` (`alt-text`,
+  `button-has-type`, `click-events-have-key-events`, `elements-content`, `interactive-supports-focus`,
+  `label-has-associated-control`, `mouse-events-have-key-events`, `no-autofocus`,
+  `no-distracting-elements`, `no-positive-tabindex`, `role-has-required-aria`, `table-scope`,
+  `valid-aria`). Es un chequeo estático: no valida contraste ni el DOM renderizado.
 
 ---
 
@@ -645,6 +650,7 @@ ver skill `@track-todos`). Formato de fila:
 - [ ] SCSS con `@use 'imports' as *` + `:host`; variables/mixins de `src/styles/`; sin redefinir clases globales
 - [ ] `id="{domain}-{component}-{type}-{element}"` en todo elemento interactuable
 - [ ] Todo texto visible con `| translate` / `translate.instant()`; claves con la convención
+- [ ] Accesibilidad: `type` en `<button>`, `alt` en imágenes, `<label>` asociado, interactivos con teclado
 - [ ] Notificación de éxito (headers) en escrituras que la requieran
 - [ ] Spec creado/actualizado con la organización estándar; `npm run test:ci` en verde (cobertura ≥ 80%)
 - [ ] TODOs registrados en `TODOS.md`; `npm run lint` limpio; commit con conventional commits
