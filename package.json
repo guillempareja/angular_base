@@ -11,7 +11,7 @@
     "test": "ng test",
     "test:ci": "ng test --watch=false --browsers=ChromeHeadless",
     "lint": "eslint \"src/**/*.{ts,html}\"",
-    "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,json,css,scss,md,html}\" && stylelint \"src/**/*.{css,scss}\" --fix",
+    "format": "prettier --write . && stylelint \"src/**/*.{css,scss}\" --fix",
     "prepare": "husky"
   },
   "private": true,
@@ -74,7 +74,7 @@
       "prettier --write",
       "eslint --fix"
     ],
-    "src/**/*.{js,jsx,tsx,json,md}": [
+    "*.{js,mjs,json,md}": [
       "prettier --write"
     ],
     "src/**/*.{css,scss}": [

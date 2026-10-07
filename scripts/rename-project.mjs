@@ -113,7 +113,8 @@ function walk(dir) {
       continue;
     }
 
-    if (IGNORED_FILES.has(entry) || !TEXT_EXTENSIONS.has(extname(entry))) continue;
+    if (IGNORED_FILES.has(entry) || !TEXT_EXTENSIONS.has(extname(entry)))
+      continue;
 
     replaceInFile(fullPath);
   }

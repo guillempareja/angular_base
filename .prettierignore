@@ -1,0 +1,9 @@
+node_modules
+dist
+coverage
+.angular
+package-lock.json
+src/fake-backend/mockServiceWorker.js
+/*.md
+.github
+.claude
