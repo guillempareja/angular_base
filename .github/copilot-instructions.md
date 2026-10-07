@@ -104,6 +104,7 @@ con lógica nace con su spec. Detalles: skill `@testing`.
 
 Conventional commits (`feat:`, `fix:`, `refactor:`…). `npm run lint` + `npm run format` antes de commitear.
 Hook `pre-commit` (husky + lint-staged) formatea/valida automáticamente los ficheros staged.
+Hook `pre-push` ejecuta `npm run test:ci`.
 
 ---
 

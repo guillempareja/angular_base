@@ -623,6 +623,8 @@ ver skill `@track-todos`). Formato de fila:
 - **Hook `pre-commit`** (husky + lint-staged, `npm install` lo activa vía el script `prepare`):
   ejecuta Prettier, ESLint (`--fix`) y Stylelint solo sobre los ficheros staged en cada commit, como
   red de seguridad. No ejecuta tests (serían demasiado lentos para cada commit).
+- **Hook `pre-push`** (husky): ejecuta `npm run test:ci` antes de subir; bloquea el push si falla
+  algún test o la cobertura baja del 80%.
 - Reglas ESLint activas (`eslint.config.mjs`): `type` en vez de `interface`
   (`consistent-type-definitions`), `import type` / `type X` inline para imports de tipos
   (`consistent-type-imports`), sin `any`, sin valores de enum duplicados, llaves siempre (`curly`)
