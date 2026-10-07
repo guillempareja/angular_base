@@ -100,6 +100,19 @@ Todo `// TODO` se registra en `TODOS.md` (raíz). Detalles: skill `@track-todos`
 Jasmine + Karma, cobertura mínima 80% **exigida** (`npm run test:ci` falla por debajo). Todo fichero
 con lógica nace con su spec. Detalles: skill `@testing`.
 
+## Comandos
+
+```bash
+npm start                       # dev server con MSW (http://localhost:4200)
+npm run start:tst               # dev server contra la API de test
+npm run rename -- "Nombre App"  # sustituir los placeholders del template
+npm run format                  # prettier + stylelint --fix (antes de commitear)
+npm run lint                    # ESLint (reglas de arquitectura)
+npm test                        # Jasmine + Karma (watch)
+npm run test:ci                 # una pasada headless; falla si cobertura < 80%
+npx ng build                    # build de producción
+```
+
 ## Git
 
 Conventional commits (`feat:`, `fix:`, `refactor:`…). `npm run lint` + `npm run format` antes de commitear.

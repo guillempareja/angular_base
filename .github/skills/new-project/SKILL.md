@@ -155,9 +155,9 @@ Lo que solo sirve para arrancar el proyecto **se borra** al terminar (esta skill
 - `scripts/rename-project.mjs` (y `scripts/` si queda vacía) + el script `rename` de `package.json`.
 - `.github/skills/new-project/` + su fila en `.github/skills/SKILLS.md`.
 - `.claude/commands/new-project.md`.
-- Toda referencia a `@new-project`, `/new-project` y `npm run rename` en `CLAUDE.md` (aviso inicial,
-  lista de skills, comandos) y en `.github/copilot-instructions.md` (lista de skills y sección
-  "Este repo es un template").
+- Toda referencia a `@new-project`, `/new-project` y `npm run rename` en `CLAUDE.md` (aviso inicial)
+  y en `.github/copilot-instructions.md` (lista de skills, sección "Este repo es un template" y
+  comandos).
 
 ---
 
