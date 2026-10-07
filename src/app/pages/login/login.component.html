@@ -1,16 +1,17 @@
-<form class="box" [formGroup]="form" (ngSubmit)="login()">
+<form class="box" [formGroup]="form" (ngSubmit)="handleLogin()">
   <h1>{{ 'login.title' | translate }}</h1>
 
   <div class="grid-template">
     <!-- User -->
     <div>
-      <label for="username">{{ 'login.usernameLabel' | translate }}</label>
+      <label for="login-input-username">{{
+        'login.usernameLabel' | translate
+      }}</label>
       <input
-        id="username"
+        id="login-input-username"
         type="text"
-        placeholder="{{ 'login.usernamePlaceholder' | translate }}"
+        [placeholder]="'login.usernamePlaceholder' | translate"
         [class.is-invalid]="form | isInvalidControl: 'username'"
-        [value]="form.get('username')?.value"
         formControlName="username"
       />
       @if (form | isInvalidControl: 'username') {
@@ -22,13 +23,14 @@
 
     <!-- Password -->
     <div>
-      <label for="password">{{ 'login.passwordLabel' | translate }}</label>
+      <label for="login-input-password">{{
+        'login.passwordLabel' | translate
+      }}</label>
       <input
-        id="password"
+        id="login-input-password"
         type="password"
-        placeholder="{{ 'login.passwordPlaceholder' | translate }}"
+        [placeholder]="'login.passwordPlaceholder' | translate"
         [class.is-invalid]="form | isInvalidControl: 'password'"
-        [value]="form.get('password')?.value"
         formControlName="password"
       />
       @if (form | isInvalidControl: 'password') {
@@ -39,5 +41,7 @@
     </div>
   </div>
 
-  <button type="submit">{{ 'login.submitButton' | translate }}</button>
+  <button id="login-btn-submit" type="submit">
+    {{ 'login.submitButton' | translate }}
+  </button>
 </form>

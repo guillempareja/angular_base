@@ -1,13 +1,12 @@
-import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
   inject,
-  OnInit,
+  type OnInit,
 } from '@angular/core';
 import {
   FormBuilder,
-  FormGroup,
+  type FormGroup,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
@@ -22,7 +21,6 @@ import { sleep } from '@shared/utils/delay.utils';
 @Component({
   selector: 'app-login',
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     IsInvalidControlPipe,
     TranslatePipe,
@@ -42,7 +40,7 @@ export default class LoginComponent implements OnInit {
   public form!: FormGroup;
 
   // Methods
-  ngOnInit() {
+  ngOnInit(): void {
     this.authService.logout();
     this.buildForm();
   }
@@ -54,11 +52,11 @@ export default class LoginComponent implements OnInit {
     });
   }
 
-  public async login(): Promise<void> {
+  public async handleLogin(): Promise<void> {
     markAllControlsAsTouched(this.form);
 
     if (!this.form.valid) {
-      await sleep(); // Wait for the UI to render validation errors before scrollings
+      await sleep(); // Wait for the UI to render validation errors before scrolling
       this.formService.navigateToFormError();
       return;
     }

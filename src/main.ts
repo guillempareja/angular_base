@@ -3,37 +3,14 @@ import { appConfig } from './app/app.config';
 import { AppComponent } from './app/app.component';
 import { registerLocaleData } from '@angular/common';
 import localeEs from '@angular/common/locales/es';
-import { environment } from './environments/environment';
 import { TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
+import { enableMocking } from './fake-backend/enable-mocking';
 
 registerLocaleData(localeEs, 'es-ES');
 
-async function enableMocking() {
-  if (!environment.useMSW) {
-    console.log('🌐 Using real API:', environment.api);
-    return;
-  }
-
-  console.log('🛠️ Initializing MockServiceWorker...');
-
-  try {
-    const { worker } = await import('./fake-backend/browser');
-
-    return worker
-      .start({
-        onUnhandledRequest: 'bypass',
-      })
-      .then(() => {
-        console.log('✅ MockServiceWorker intercepting requests');
-      });
-  } catch (error) {
-    console.warn('MSW not available in this build');
-  }
-}
-
 async function initializeApp() {
-  // Initialize MSW first
+  // MSW must intercept before the first request is fired
   await enableMocking();
 
   // Bootstrap the application

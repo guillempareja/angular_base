@@ -1,9 +1,8 @@
-import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
   inject,
-  OnInit,
+  type OnInit,
   signal,
 } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -17,7 +16,7 @@ import type { GetExampleResponse } from '@core/api/example/example.types';
  */
 @Component({
   selector: 'app-main',
-  imports: [CommonModule, TranslatePipe],
+  imports: [TranslatePipe],
   templateUrl: './main.component.html',
   styleUrl: './main.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

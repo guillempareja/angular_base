@@ -6,17 +6,17 @@ import {
   getWarningHeaders,
 } from '../../utils';
 import { exampleGetMock, examplePostMock, examplePutMock } from './mocks';
+import { loginMock } from '../login';
+import { refreshTokenMock } from '../refresh-token';
+
+const VALID_TOKENS = [loginMock.token, refreshTokenMock.token];
 
 export const exampleHandlers = [
   // GET /api/example
   http.get('/api/example', async ({ request }) => {
-    const authHeader = request.headers.get('authorization');
+    const token = request.headers.get('authorization')?.replace('Bearer ', '');
 
-    if (
-      !authHeader ||
-      !authHeader.startsWith('Bearer ') ||
-      authHeader.split(' ')[1] !== 'tokenUsuario3'
-    ) {
+    if (!token || !VALID_TOKENS.includes(token)) {
       return new HttpResponse(null, { status: 401 });
     }
 

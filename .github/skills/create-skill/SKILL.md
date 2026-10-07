@@ -135,42 +135,39 @@ Después de crear la skill, **siempre** añadir una nueva fila en `.github/skill
 
 ```markdown
 ---
-name: confirmation-modal
-description: Use when the user needs to add a confirmation modal before a destructive or irreversible action. Also use when the user asks in Spanish to añadir modal de confirmación, confirmar antes de eliminar, modal antes de cancelar, or similar. Covers the GenericModalsService.showModal pattern with Promise<boolean> and the early-return flow.
+name: form-submit
+description: Use when the user needs to validate and submit a reactive form. Also use when the user asks in Spanish to enviar un formulario, validar un formulario, guardar un formulario, scroll al primer error, or similar. Covers markAllControlsAsTouched, sleep and FormService.navigateToFormError with the early-return flow.
 user-invocable: true
 ---
 
-# Skill: Modal de confirmación
+# Skill: Envío de formulario
 
 ## Cuándo usar
 
-Cuando una acción (eliminar, cancelar con cambios pendientes, irreversible) necesita confirmación
-explícita del usuario antes de ejecutarse. Nunca para el guardado normal.
+Cuando un componente con reactive form necesita validar antes de guardar y llevar al usuario al
+primer error si el formulario no es válido.
 
 ## Patrón
 
 ```typescript
 // Injections
-private genericModalsService = inject(GenericModalsService);
+private formService = inject(FormService);
 
-private confirmDelete(): Promise<boolean> {
-  return this.genericModalsService.showModal(
-    this.translate.instant('example.modal.deleteTitle'),
-    this.translate.instant('example.modal.deleteDescription'),
-  );
-}
+public async handleSave(): Promise<void> {
+  markAllControlsAsTouched(this.form);
 
-public async handleDelete(): Promise<void> {
-  if (!(await this.confirmDelete())) {
-    return; // User cancelled
+  if (!this.form.valid) {
+    await sleep(); // Let the UI render validation errors before scrolling
+    this.formService.navigateToFormError();
+    return;
   }
-  await this.exampleService.deleteExample(this.id());
+
+  await this.exampleService.createExample(this.form.value);
 }
 ```
 
 ## Reglas clave
-- Siempre `await` en el `if` — nunca `.then()`
-- Método privado nombrado `confirm{Acción}()` que devuelve `Promise<boolean>`
-- Early return si el usuario cancela
-- Textos siempre traducidos (skill `@i18n`)
+- `markAllControlsAsTouched` siempre antes de comprobar `valid`
+- Early return si el formulario no es válido
+- Mensajes de error con el pipe `errorMessage` (skill `@i18n`)
 ```

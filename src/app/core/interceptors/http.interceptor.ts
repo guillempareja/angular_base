@@ -1,14 +1,14 @@
 import {
-  HttpInterceptorFn,
-  HttpRequest,
-  HttpHandlerFn,
-  HttpEvent,
-  HttpErrorResponse,
+  type HttpInterceptorFn,
+  type HttpRequest,
+  type HttpHandlerFn,
+  type HttpEvent,
+  type HttpErrorResponse,
   HttpResponse,
 } from '@angular/common/http';
 import { inject } from '@angular/core';
 import {
-  Observable,
+  type Observable,
   catchError,
   finalize,
   switchMap,

@@ -62,14 +62,14 @@ Importar `TranslatePipe` en `imports[]` del componente **solo si el template lo 
 ```html
 <h1>{{ 'login.title' | translate }}</h1>
 
-<label for="username">{{ 'login.usernameLabel' | translate }}</label>
-<input id="username" placeholder="{{ 'login.usernamePlaceholder' | translate }}" ... />
+<label for="login-input-username">{{ 'login.usernameLabel' | translate }}</label>
+<input id="login-input-username" [placeholder]="'login.usernamePlaceholder' | translate" ... />
 
-<button type="submit">{{ 'login.submitButton' | translate }}</button>
+<button id="login-btn-submit" type="submit">{{ 'login.submitButton' | translate }}</button>
 ```
 
-**Regla para inputs de componente**: binding `[label]="'clave' | translate"`, no interpolación
-`label="{{ ... }}"` — la interpolación puede causar flicker con OnPush.
+**Regla para atributos e inputs de componente**: binding `[placeholder]="'clave' | translate"`, no
+interpolación `placeholder="{{ ... }}"` — la interpolación puede causar flicker con OnPush.
 
 ## 5. Uso en TypeScript
 
@@ -87,7 +87,7 @@ public tabsConfig: TabConfig[] = [
 
 - Si la config necesita un `TemplateRef` de `viewChild`, entonces es `computed()` (la señal es el
   viewChild, no la traducción).
-- Métodos de modal: `translate.instant()` directamente en el método.
+- Textos construidos en métodos (confirmaciones, mensajes): `translate.instant()` directamente en el método.
 - Interpolación de parámetros: `translate.instant('form.maxLengthError', { max: 200 })` y en el JSON
   `"Máximo {{max}} caracteres"`.
 

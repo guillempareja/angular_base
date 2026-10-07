@@ -42,24 +42,6 @@ export function getWarningHeaders(
 }
 
 /**
- * Genera headers para respuestas de error
- * @param errorMessage - Mensaje de error personalizado
- * @param additionalHeaders - Headers adicionales opcionales
- * @returns Objeto con los headers de error
- */
-export function getErrorHeaders(
-  errorMessage: string,
-  additionalHeaders: Record<string, string> = {},
-): Record<string, string> {
-  return {
-    'Access-Control-Expose-Headers': 'Back-Custom-Error-Message',
-    'Back-Custom-Error-Message': errorMessage,
-    'Cache-Control': 'no-store',
-    ...additionalHeaders,
-  };
-}
-
-/**
  * Genera headers para respuestas de éxito con mensaje personalizado
  * @param successMessage - Mensaje de éxito personalizado
  * @param additionalHeaders - Headers adicionales opcionales

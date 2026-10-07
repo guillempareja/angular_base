@@ -26,7 +26,7 @@ Principios que gobiernan todas las demás decisiones:
 4. **Extraer funciones utilitarias a la mínima.** Cualquier transformación reutilizable (formateo,
    mapeo, ordenación, validación) se saca a un `*.utils.ts`, un pipe o un validator — nunca se
    duplica ni se deja inline en el componente. Para transformaciones de presentación en template se
-   prefieren **pipes** (`| formatDate`, `| dropdownText`) sobre métodos helper en el componente.
+   prefieren **pipes** sobre métodos helper en el componente.
 5. **Reutilización de componentes**: un formulario que se usa en alta y en modificación es **un solo
    componente** parametrizado con `input`/`output`; nunca dos copias.
 6. **Todo tipado, todo explícito**: TypeScript `strict`, sin `any` (usar `unknown` + type guard),
@@ -49,12 +49,11 @@ Principios que gobiernan todas las demás decisiones:
 | Tests | Karma + Jasmine (cobertura mínima 80%) |
 | Mock backend local | MSW (Mock Service Worker) en `src/fake-backend/` |
 | i18n | @ngx-translate (JSON único por idioma en `assets/i18n/`) |
-| Caché HTTP | @ngneat/cashew (`withHttpCacheInterceptor()` + `provideHttpCache()`) |
 | Notificaciones | ngx-toastr (toasts disparados desde el interceptor HTTP, ver §7) |
 | Formato/calidad | Prettier + ESLint + Stylelint (conventional commits como convención) |
-| Estilos | SCSS propio en `src/styles/` (variables, mixins, funciones y clases globales, ver §14) |
+| Estilos | SCSS propio en `src/styles/` (variables, mixins, funciones y clases globales, ver §13) |
 
-Scripts estándar en `package.json`: `start`, `start:tst`, `build`, `watch`, `test`, `format`.
+Scripts estándar en `package.json`: `start`, `start:tst`, `build`, `watch`, `test`, `test:ci`, `lint`, `format`.
 
 ---
 
@@ -64,18 +63,18 @@ Scripts estándar en `package.json`: `start`, `start:tst`, `build`, `watch`, `te
 src/
 ├── app/
 │   ├── app.component.*            ← Shell de la app
-│   ├── app.config.ts              ← Providers (router, http+interceptores, i18n, toastr, caché)
+│   ├── app.config.ts              ← Providers (router, http+interceptores, i18n, toastr)
 │   ├── app.routes.ts              ← Rutas raíz, lazy loading por dominio
 │   ├── core/                      ← Infraestructura Angular (sin UI)
 │   │   ├── api/                   ← Servicios HTTP + tipos, por familia de endpoint (ver §5)
 │   │   ├── guards/                ← Guards de ruta (AuthGuard)
 │   │   ├── interceptors/          ← Interceptores HTTP (ver §7)
-│   │   └── services/              ← Servicios de infraestructura (auth, loader, modales genéricos, respuesta HTTP)
+│   │   └── services/              ← Servicios de infraestructura (auth, loader, respuesta HTTP)
 │   ├── pages/                     ← Dominios de negocio (vertical slices)
 │   │   ├── login/
 │   │   └── main/
 │   └── shared/                    ← Reutilizables entre 2+ dominios
-│       ├── components/            ← Componentes UI compartidos (header, footer, modal, global-loader)
+│       ├── components/            ← Componentes UI compartidos (header, footer, global-loader)
 │       ├── constants/             ← Constantes (opciones de radio, dropdowns estáticos…)
 │       ├── directives/
 │       ├── enums/                 ← Enums transversales (HttpCustomHeader…)
@@ -88,8 +87,10 @@ src/
 │   ├── i18n/                      ← JSON de traducciones (uno por idioma)
 │   └── images/
 ├── environments/                  ← environment.ts (dev+MSW) + environment.tst.ts + environment.prod.ts
-├── styles/                        ← Sistema de estilos global SCSS (ver §14)
-└── fake-backend/                  ← Mocks MSW (espejo de core/api, ver §8)
+├── styles/                        ← Sistema de estilos global SCSS (ver §13)
+└── fake-backend/                  ← Mocks MSW (espejo de core/api, ver §8) — SOLO desarrollo
+    ├── enable-mocking.ts          ← Arranca el worker si `environment.useMSW` (llamado desde main.ts)
+    ├── enable-mocking.noop.ts     ← Sustituto vacío para tst/producción (fileReplacements)
     ├── index.ts                   ← Entry point: re-exporta worker y handlers
     ├── browser.ts                 ← setupWorker con todos los handlers
     ├── utils/                     ← Utilidades de mock (headers, generador de documentos)
@@ -103,21 +104,12 @@ Cada dominio se organiza por **pantallas**, y cada pantalla por sub-componentes:
 ```
 pages/{domain}/
 ├── {domain}.routes.ts             ← Rutas lazy del dominio
-├── list/                          ← Pantalla de listado
-│   ├── list.component.{ts,html,scss}
+├── {screen}/                      ← Una carpeta por pantalla (list/, detail/, registration/…)
+│   ├── {screen}.component.{ts,html,scss}
+│   ├── components/                ← Sub-componentes propios de la pantalla
 │   ├── enums/
-│   └── services/                  ← ListService (persistencia de estado)
-├── registration/                  ← Pantalla de alta
-├── management/                    ← Pantalla de gestión/detalle con menú lateral
-│   ├── management.component.*
-│   ├── enums/                     ← Enum de secciones
-│   ├── services/                  ← ManagementService (estado global de la entidad cargada)
-│   └── components/                ← Un folder por sección del menú lateral
-│       └── section-a/
-│           └── components/        ← Sub-pantallas / sub-componentes de la sección
+│   └── services/                  ← Estado propio de la pantalla
 ├── components/                    ← Componentes compartidos entre pantallas DEL dominio
-│   └── form/                      ← Formulario reutilizado por alta y modificación
-│       └── components/            ← Sub-secciones (acordeones) del formulario
 ├── utils/                         ← Utils propios del dominio
 └── services/                      ← Servicios propios del dominio
 ```
@@ -232,8 +224,6 @@ Reglas:
 ### Tipos API — plantilla (`{familia}.types.ts`)
 
 ```typescript
-import type { Token } from '@shared/models/auth.types';
-
 //----------------------------------------------------------------
 // DOMAIN DATA TYPES
 //----------------------------------------------------------------
@@ -261,18 +251,6 @@ export type CreateExampleResponse = {
 
 - Dos bloques separados por comentario-banner: tipos de dominio arriba, Request/Response abajo.
 - Los Request/Response suelen ser **alias o derivados** (`Omit`, `Pick`, `Partial`) de los tipos de dominio.
-- Búsquedas paginadas usan genéricos compartidos:
-
-```typescript
-// shared/models/data-query.types.ts
-export type DataQueryRequest<Filter> = { page; pageSize; sort?; search?; filter?: Filter };
-export type DataQueryResponse<Data> = { content: Data[]; totalPages; totalElements; pageSize; page };
-
-// en el types de la familia search:
-export type EntitySearchFilter = { fieldA?: FieldA; dateFrom?: Date };
-export type SearchEntityRequest = DataQueryRequest<EntitySearchFilter>;
-export type SearchEntityResponse = DataQueryResponse<EntitySearchItem>;
-```
 
 ### Notificaciones de éxito en escrituras
 
@@ -334,28 +312,25 @@ Reglas:
 
 ---
 
-## 7. Capa HTTP transversal (interceptores + resolvers)
+## 7. Capa HTTP transversal (interceptor)
 
 Los interceptores son **funcionales** (`HttpInterceptorFn`) y se registran en `app.config.ts`
 con `provideHttpClient(withInterceptors([...]), withFetch())`. La idea: **simplificar cada llamada
 individual** resolviendo transversalmente lo que de otro modo habría que repetir en cada servicio.
 
-Cadena de interceptores del proyecto (`app.config.ts`):
+El proyecto tiene un único interceptor, **`customHttpInterceptor`**
+(`core/interceptors/http.interceptor.ts`), que concentra toda la lógica transversal:
 
-1. **`withHttpCacheInterceptor()`** (@ngneat/cashew): caché HTTP para las llamadas que declaren
-   `context: withCache()`.
-2. **`customHttpInterceptor`** (`core/interceptors/http.interceptor.ts`), que concentra toda la
-   lógica transversal:
-   - **Base URL**: antepone `environment.api` a toda request (por eso los servicios de `core/api/`
-     usan URLs relativas, ver §5). Se salta los ficheros de `assets/i18n/`.
-   - **Auth**: añade `Authorization: Bearer {token}` si hay sesión (`AuthService.userData()`).
-   - **Loader global**: muestra/oculta el `LoaderService` en cada request, salvo que la llamada
-     lleve el header `SHOW_LOADER: 'false'`.
-   - **Refresh token**: ante un `401` (que no sea de `/login` ni `/refreshToken`) refresca el token
-     y reintenta la request; si el refresh falla, expira la sesión (`logout` + aviso).
-   - **Notificaciones**: convierte en toasts (vía `HttpResponseHandlerService` + ngx-toastr) los
-     headers de éxito/warning (ver §5) y los errores HTTP, de forma centralizada. Los componentes
-     **no** gestionan notificaciones ni errores HTTP genéricos.
+- **Base URL**: antepone `environment.api` a toda request (por eso los servicios de `core/api/`
+  usan URLs relativas, ver §5). Se salta los ficheros de `assets/i18n/`.
+- **Auth**: añade `Authorization: Bearer {token}` si hay sesión (`AuthService.userData()`).
+- **Loader global**: muestra/oculta el `LoaderService` en cada request, salvo que la llamada
+  lleve el header `SHOW_LOADER: 'false'`.
+- **Refresh token**: ante un `401` (que no sea de `/login` ni `/refreshToken`) refresca el token
+  y reintenta la request; si el refresh falla, expira la sesión (`logout` + aviso).
+- **Notificaciones**: convierte en toasts (vía `HttpResponseHandlerService` + ngx-toastr) los
+  headers de éxito/warning (ver §5) y los errores HTTP, de forma centralizada. Los componentes
+  **no** gestionan notificaciones ni errores HTTP genéricos.
 
 Guards: `AuthGuard` (`core/guards/`) protege las rutas privadas comprobando la sesión.
 
@@ -384,7 +359,7 @@ intercepta la request **después** de que el interceptor haya antepuesto `enviro
 Reglas:
 
 - **mocks.ts**: objetos planos con datos realistas, sin lógica ni anotaciones de tipo (se infieren).
-  Para IDs de catálogo, comentario con la etiqueta (`categoryId: '2', // 2 = Active`). Solo los campos que la UI necesita.
+  Solo los campos que la UI necesita.
 - **handlers.ts**: lo más simples posible — interceptar y devolver el mock. `await sleep()` en
   escrituras para simular latencia. En updates, devolver `{ ...mock, ...body }` para que la UI
   refleje lo enviado. En deletes, `204` sin body.
@@ -392,56 +367,17 @@ Reglas:
   (MSW machea de arriba a abajo).
 - `browser.ts` combina los handlers de todas las familias en un `setupWorker`; el worker solo se
   arranca cuando `environment.useMSW` es `true`.
+- **MSW es solo de desarrollo y nunca llega a tst/producción**: en esas configuraciones
+  `angular.json` sustituye `enable-mocking.ts` por `enable-mocking.noop.ts` (el código de MSW no
+  entra en el bundle) y `mockServiceWorker.js` solo se copia como asset en `development`.
+  `main.ts` nunca importa nada de `fake-backend/` salvo `enable-mocking`.
 
 **Flujo al crear un endpoint nuevo** (siempre los 5 pasos):
 types → service → mocks → handlers → wiring de los `index.ts`.
 
 ---
 
-## 9. Catálogos (dropdowns dinámicos)
-
-Los desplegables cuyo contenido viene de backend (listas de referencia/lookup: categorías, estados,
-tipos…) se resuelven con **un único servicio de catálogos**, genérico, parametrizado por un **enum**
-que mapea nombre ↔ ID de catálogo — nunca un servicio por cada lista:
-
-```typescript
-public getCatalog(catalog: Catalog): Promise<GetCatalogResponse> {
-  return firstValueFrom(
-    this.http
-      .get<GetCatalogRawResponse>(`/catalogs/${catalog}/items`, {
-        context: withCache(),                    // ← catálogos cacheados en HTTP
-      })
-      .pipe(map(mapDropdownOptions))             // ← mapeo raw → opciones de dropdown en el servicio
-    );
-}
-```
-
-Convenciones de consumo en componentes:
-
-- Un signal por catálogo con naming `{name}Items = signal<GetCatalogResponse>([])`.
-- Un único método privado **siempre llamado `loadDropdowns()`** (aunque cargue un solo catálogo),
-  invocado desde `ngOnInit`, que carga **todos los catálogos en paralelo con `Promise.all`**:
-
-```typescript
-private async loadDropdowns(): Promise<void> {
-  const [categoryAResponse, categoryBResponse] = await Promise.all([
-    this.catalogService.getCatalog(Catalog.CATEGORY_A),
-    this.catalogService.getCatalog(Catalog.CATEGORY_B),
-  ]);
-
-  this.categoryAItems.set(categoryAResponse);
-  this.categoryBItems.set(categoryBResponse);
-}
-```
-
-- Para mostrar la etiqueta de un ID de catálogo: pipe `| dropdownText : items()` en template
-  (o util `getDropdownText(items, value)` en mapeos de datos). Nunca métodos helper `xxxText()` en el componente.
-- El enum `Catalog` es la **única fuente de verdad** de IDs de catálogo; los IDs pendientes de backend
-  se marcan con placeholder + `// TODO` al final del enum.
-
----
-
-## 10. Anatomía de un componente
+## 9. Anatomía de un componente
 
 ### Decorador
 
@@ -466,7 +402,7 @@ export default class ExampleComponent implements OnInit { ... }
 export class ExampleComponent {
   // Injections
   private fb = inject(FormBuilder);              // inject() SIEMPRE, nunca constructor
-  public managementService = inject(ManagementService); // public solo si el template lo usa
+  public entityService = inject(EntityService);  // public solo si el template lo usa
 
   // ViewChilds
   private sectionRef = viewChild<SectionComponent>('sectionRef');
@@ -491,7 +427,7 @@ export class ExampleComponent {
   public hasItems = computed(() => this.items().length > 0);
 
   // Effects
-  scrollOnScreenChange = effect(() => { ... });  // effects con nombre descriptivo, sin sufijo "effect"
+  resetFormOnDataChange = effect(() => { ... }); // effects con nombre descriptivo, sin sufijo "effect"
 
   // Methods
   public ngOnInit(): void { ... }                // lifecycle primero
@@ -527,139 +463,47 @@ Reglas transversales:
 
 ---
 
-## 11. Patrones de pantalla
-
-Cada tipo de pantalla tiene un patrón canónico. Al crear una pantalla nueva se copia el patrón, no se inventa.
-
-### 11.1 Listado (tabla)
-
-Dos variantes según quién pagina:
-
-| El backend pagina/filtra/ordena | **Tabla remota** — servicio gestor de tabla remota + `ListService` |
-| El backend devuelve todo de una vez | **Tabla local** — signal con los datos + sort en un `computed` |
-
-**Tabla remota** — piezas:
-
-- **`ListService`** (`providedIn: 'root'`, en `list/services/`): persiste el estado del listado entre
-  navegaciones — signals `currentPage`, `itemsPerPage`, `sortParams`, `appliedSearch`,
-  `appliedFilters`, `hasFetchedData` + método `reset()`. Al volver de un detalle, el listado se
-  restaura tal cual estaba; la pantalla que quiera limpiar el estado navega con
-  `state: { cleanState: true }` y el listado hace `reset()` al detectarlo.
-- **Servicio gestor de tabla remota** (shared, **provisto a nivel de componente** en `providers: []`):
-  encapsula fetch, paginación, búsqueda, filtros y orden. El componente le pasa en `configure()` la
-  `fetchFn` (el método del servicio API), los signals del `ListService` y el signal de filtros.
-- Orden de arranque en `ngOnInit`: `restoreState()` → `configureTableManager()` →
-  `loadDropdowns().then(() => buildFilterModel())`.
-- **Mapeo de datos** para la tabla en un `computed` `mappedData`: cada fila lleva los campos ya
-  formateados para pintar (IDs de catálogo → etiqueta, `Date` → texto) **y siempre `data: item`**
-  con el objeto original de la API intacto (para acciones y ordenación por valor crudo).
-- Los filtros de dropdown en listados son **multi-select** (default `[]`); solo los datepickers usan `null`.
-
-**Tabla local** — sin servicios: `items = signal<T[]>([])` cargado en `ngOnInit`,
-`sortParams = signal<SortChangeEvent | null>(null)` alimentado por `(sortChange)`, y un `computed`
-`sortedData` que ordena con una util `sortByField`. Las columnas transformadas (fechas) se ordenan
-por el valor original vía `data.{campo}` con comparador numérico.
-
-### 11.2 Formulario
-
-Decisión inicial:
-
-| El formulario se usa en 1 sola ruta | **Single-page**: el componente construye el form y llama a la API directamente |
-| Se usa en 2+ pantallas (alta + modificación) | **Componentizado**: componente `form/` con `data = input<FormData | null>(null)` + `save`/`cancel` outputs. **No llama a la API**: emite; la pantalla padre decide POST o PUT |
-| Lectura y edición alternan en la misma URL | Componentizado + `readonly = input<boolean>()`; el contenedor usa `readonly = signal<boolean>(true)` y alterna con `@if` |
-
-Reglas del formulario:
+## 10. Formularios
 
 - Reactive forms (`FormBuilder`) construidos en un método privado `buildForm()`; en modo edición,
-  `patchValue(this.data()!)` en `ngOnInit`.
-- El formulario se divide en **sub-componentes de sección (acordeones)**, cada uno recibiendo
-  `formGroup = input.required<FormGroup>()` (su sub-FormGroup) y exponiendo
-  `public open = signal<boolean>(true)` para que el padre pueda forzar su apertura al validar.
-- **Flujo de guardado canónico**:
-  1. `markAllControlsAsTouched(form)` (util compartida)
-  2. Si inválido → abrir todos los acordeones (`viewChild` de cada sección) → `await sleep()` →
-     `navigateToFormError()` (scroll al primer error) → return
-  3. Si aplica, modal de confirmación (solo en cancelar/eliminar/irreversible — **nunca al guardar normal**)
-  4. Emitir `save` / llamar API
-- **Cancelar** siempre pide confirmación con un método privado nombrado (`confirmCancel()`) que
-  devuelve `Promise<boolean>` desde el servicio de modales.
-- **Modo lectura por defecto obligatorio**: toda pantalla de datos que se pueda revisitar tiene
-  lectura, y cada campo alterna `@if (!readonly())` control / `@else` contenedor de info de solo
-  lectura, resolviendo con pipes (`dropdownText`, `formatDate`, `booleanToYesNo`).
-  Excepciones sin `@if/@else`: checkboxes y textareas usan su propiedad `[readonly]`.
-- Las **observaciones** siempre son un sub-componente aparte, nunca inline en el grid del formulario.
-- **Persistencia y reset (CRÍTICO en lectura/edición sobre la misma URL)**: el FormGroup sobrevive al
-  toggle, así que si el usuario edita y cancela vería datos sucios. Patrón: guardar los datos
-  originales en un signal + método único `applyFormData()` (patch o reset desde el signal), llamado
-  al cargar, al guardar (con la respuesta del backend) y al cancelar. En formularios componentizados,
-  un `effect` sobre el input `data` (con guard `isInitialized`) resincroniza automáticamente.
-
-### 11.3 Pantalla de gestión (detalle con menú lateral)
-
-Estructura para "ficha" de una entidad con secciones:
-
-- **`ManagementService`** (root): `entityData = signal<GetEntityResponse | null>(null)` + `reset()`.
-  Es el estado compartido que todas las secciones leen — **sin prop drilling**. El componente de
-  gestión lo resetea en `ngOnDestroy`.
-- El componente de gestión: carga la entidad por el `:id` de la ruta, pinta una **cabecera de info**
-  (campos clave, computed que devuelve `'-'` si aún no hay datos) y un **menú lateral** cuyas
-  opciones salen de un **enum de secciones** (valores kebab-case porque van a la URL).
-- La sección activa se persiste en la URL **sin navegar** con `location.replaceState(...)`
-  (así el "atrás" del navegador vuelve al listado, no a la sección anterior).
-- El layout se envuelve en `@if (managementService.entityData())` para no renderizar secciones sin datos.
-- `loadDropdowns()` se llama **sin await** para que corra en paralelo con la carga de la entidad.
-- Cada sección del menú es un componente; si alterna detalle/modificación usa el patrón de
-  sub-pantallas (§11.4) o el simplificado con `readonly = signal(true)` cuando el form ya está
-  componentizado (preferido — evita sub-carpetas `detail/`+`modification/` innecesarias).
-- Tras guardar en una sección: `managementService.entityData.set(response)` para que la cabecera y
-  el resto de secciones reflejen el cambio.
-
-### 11.4 Sub-pantallas (cambiar vista sin cambiar URL)
-
-- **Enum de pantallas** + **`ScreenService`** (root) con `currentScreen = signal<...>`, métodos de
-  navegación nombrados (`goToDetail()`, `goToModification()`) y `reset()` (siempre vuelve a la inicial).
-- **Padre tonto**: solo `@switch (screenService.currentScreen())` en el template, un `effect`
-  `scrollOnScreenChange` que hace `window.scrollTo(0, 0)` al cambiar, y `reset()` en `ngOnDestroy`.
-  **Cero lógica de los hijos en el padre.**
-- Los hijos navegan inyectando el `ScreenService` — el padre nunca se entera.
-- Si hay botones comunes a todas las sub-pantallas (guardar/cancelar fijos): `viewChild` por
-  sub-componente + `computed activeComponent()` público; el template llama
-  `activeComponent().handleSave()` directamente. Todos los hijos exponen el mismo contrato público.
-  Sin métodos delegadores en el padre.
-
-### 11.5 Detalle de solo lectura
-
-- Un sub-componente por grupo lógico de campos (acordeón), recibiendo **solo su slice de datos**
-  con `data = input.required<GroupData>()`.
-- Cada campo es un contenedor de info label+value; IDs de catálogo y fechas se resuelven con pipes.
-- Grid de columnas con clases globales (`grid-template` + `col-4`/`col-6`/`col-12`).
-- Barra de acciones al pie (`Modificar` como CTA). Acciones destructivas (Eliminar) van en la
-  cabecera junto al título, con modal de confirmación.
+  `patchValue(...)` en `ngOnInit`.
+- Un formulario que se usa en 2+ pantallas (alta + modificación) es **un solo componente**
+  parametrizado con `data = input<FormData | null>(null)` + outputs `save`/`cancel`. No llama a la
+  API: emite, y la pantalla padre decide POST o PUT.
+- Estado de error en template con los pipes compartidos: `[class.is-invalid]="form | isInvalidControl: 'field'"`
+  y `{{ form.get('field')! | errorMessage }}` (resuelve los `translationTag` de los validators vía i18n).
+- **Flujo de guardado canónico** (ver `pages/login/`):
+  1. `markAllControlsAsTouched(form)` (`shared/utils/form.utils.ts`)
+  2. Si inválido → `await sleep()` (deja pintar los errores) → `formService.navigateToFormError()`
+     (scroll al primer error + toast) → return
+  3. Emitir `save` / llamar a la API
 
 ---
 
-## 12. Routing
+## 11. Routing
 
 - `app.routes.ts` define un path por dominio con `loadChildren` lazy hacia el `{domain}.routes.ts`
-  del dominio; cada pantalla se carga con `loadComponent` lazy.
-- Rutas hijas para variantes de una entidad: `:id` → gestión, `:id/:section` → gestión con sección,
-  `:id/accion-x` → pantallas de acción.
-- `data: { breadcrumb: ... }` en cada ruta para las migas.
-- Resolver de traducciones en las rutas raíz de dominio.
-- Estado efímero entre pantallas → `history.state` (ej. `cleanState`), no query params.
+  del dominio; cada pantalla se carga con `loadComponent` lazy. Un dominio de **una sola pantalla**
+  (como `login` o `main`) puede cargarse directamente con `loadComponent` desde `app.routes.ts`.
+- Rutas privadas con `canActivate: [AuthGuard]`; la ruta comodín `**` redirige siempre a una ruta existente.
+- Rutas hijas para variantes de una entidad: `:id` → detalle, `:id/accion-x` → pantallas de acción.
+- Estado efímero entre pantallas → `history.state`, no query params.
 
 ---
 
-## 13. i18n
+## 12. i18n
 
 - **Cero texto visible hardcodeado** — todo por `| translate` (template) o `translate.instant()` (TS).
 - Un único JSON por idioma en `assets/i18n/`.
-- **Convención de claves**: `{domain}.{component}.{grupo}.{clave}` en camelCase.
+- **Convención de claves**: `{domain}.{component}.{grupo}.{clave}` en camelCase. Si el dominio tiene
+  una sola pantalla, `{domain}.{clave}` (`login.title`); los componentes de `shared/` usan su nombre
+  como raíz (`globalLoader.loading`).
+  Grupos raíz transversales: `common`, `app`, `httpRequest` (tags de toasts), `form` (errores de validación).
   Grupos semánticos estándar: `tabs`, `columns`, `buttons`, `modal`, `notifications`, `steps`,
   `menu`, `header`, `filters`, `searcher`. Textos únicos sin grupo: `title`, `noResults`.
-- **`shared.buttons.*`** para acciones comunes (`save`, `cancel`, `back`, `modify`, `delete`,
-  `accept`…) — nunca duplicar "Guardar" por dominio.
-- En template: binding `[label]="'clave' | translate"`, no interpolación `label="{{...}}"` (flicker con OnPush).
+- **`common.*`** para acciones comunes (`cancel`, `accept`, `logout`…) — nunca duplicar
+  "Cancelar" por dominio.
+- En template: binding `[placeholder]="'clave' | translate"`, no interpolación `placeholder="{{...}}"` (flicker con OnPush).
 - En TS: arrays de configuración (tabs, columnas) se inicializan en el cuerpo de la clase con
   `this.translate.instant()` (funciona porque `inject()` resuelve antes que los inicializadores).
   Si la config de tabla necesita un `TemplateRef` de `viewChild`, entonces es `computed()`.
@@ -667,81 +511,30 @@ Estructura para "ficha" de una entidad con secciones:
 
 ---
 
-## 14. Estilos (SCSS)
+## 13. Estilos (SCSS)
 
 No hay librería de estilos externa: el sistema de estilos es propio y vive en `src/styles/`.
+**Guía completa (estructura, variables, `ui/`, `utils/`, cómo estila un componente):**
+[`src/styles/README.md`](src/styles/README.md).
 
-### Estructura de `src/styles/`
+Reglas que no se incumplen:
 
-```
-styles/
-├── app.scss                       ← Entry point global (registrado en angular.json) — solo @use 'base' + @use 'ui'
-├── _imports.scss                  ← Fachada para componentes: @forward de variables + utils
-├── base/
-│   ├── _normalize.scss            ← normalize.css
-│   ├── _variables.scss            ← TODAS las variables Sass de diseño (ver abajo)
-│   └── _globals.scss              ← Estilos base de elementos (body, h1/h2, img, ul, input…)
-├── ui/                            ← Clases globales reutilizables
-│   ├── _grid.scss                 ← .grid-template + .col-1…col-12 (+ .new-row, mixins de grid)
-│   ├── _layouts.scss              ← .field-group, .buttons-group
-│   ├── _texts.scss                ← .clamped-text
-│   └── _icons.scss                ← Material Symbols
-└── utils/
-    ├── _functions.scss            ← rem($px) — px → rem
-    └── _mixins.scss               ← breakpoint, flex-center, text-ellipsis, fade-in, line-clamp, flex-wrap, spin
-```
-
-### Variables de diseño (`base/_variables.scss`)
-
-**Variables Sass** (no CSS custom properties), organizadas por escala — es la única fuente de verdad:
-
-- **Colores**: paletas `$color-primary-{10..700}`, `$color-secondary-*`, `$color-error-*`,
-  `$color-warning-*`, `$color-success-*`, `$color-neutral-*`, `$color-basic-black/white`.
-- **Tipografía**: `$font-family`, `$base-font-size`, `$base-line-height`, `$small-font-size`.
-- **Espaciados**: escala `$spacing-5xs` (2px) … `$spacing-9xl` (104px), en `rem()`.
-- **Bordes**: `$border-radius-xs` … `$border-radius-xxl`.
-- **Breakpoints**: mapa `$breakpoints` (phone/tablet/laptop/desktop/wide-screen) consumido por el
-  mixin `breakpoint($device)` (media query `max-width`).
-- **Otros**: `$page-max-width`, `$transition-speed`.
-
-### Cómo estila un componente
-
-`angular.json` declara `stylePreprocessorOptions.includePaths: ["src/styles"]`, así que todo SCSS
-de componente empieza igual:
-
-```scss
-@use 'imports' as *;
-
-:host {
-  @include flex-center;
-
-  .header-wrapper {
-    min-height: rem(100);
-    padding: $spacing-xs $spacing-xl;
-  }
-}
-```
-
-Reglas:
-
-- **Encapsulación por defecto** (Emulated) — no se usa `ViewEncapsulation.None`. El SCSS del
-  componente scopa con `:host` y anida sus selectores dentro.
-- **Variables y mixins siempre**: `$spacing-md`, `$color-primary-500`, `rem(24)`,
-  `@include breakpoint('tablet')`… **Nunca** colores/espaciados/tamaños hardcodeados.
-  Nunca estilos inline en template.
+- Estilos **encapsulados por componente** por defecto (`Emulated`, scopa con `:host`); solo sube a
+  `src/styles/` lo transversal con un 2º consumidor real. No se usa `ViewEncapsulation.None`.
+- Todo SCSS de componente empieza con `@use 'imports' as *;` (la fachada que expone variables y utils;
+  funciona por `includePaths: ["src/styles"]` en `angular.json`).
+- **Variables y mixins siempre**, nunca valores hardcodeados ni estilos inline:
+  `$spacing-md`, `$color-primary-500`, `rem(24)`, `@include breakpoint('tablet')`…
+  La única fuente de verdad del diseño es `base/_variables.scss`.
 - Las **clases globales de UI** (`grid-template` + `col-*`, `field-group`, `buttons-group`,
-  `clamped-text`) se **usan pero jamás se redefinen** en los SCSS de componentes. Los SCSS de
-  componente solo añaden espaciados (`margin-top`) y detalles propios.
-- Grid de formularios/detalles: `grid-template` con `col-4` (campo estándar), `col-6`, `col-8`,
-  `col-12` (observaciones/textos largos); `.new-row` fuerza salto de fila.
-- Si una variable/mixin/clase global nueva es transversal, nace en `src/styles/` (nivel que le
-  corresponda); si es puntual de un componente, se queda en su SCSS.
+  `clamped-text`) se **usan pero jamás se redefinen** en los SCSS de componentes.
 - **Stylelint** (`stylelint-config-standard-scss` + prettier) valida todo `.scss`; `npm run format`
   formatea y aplica fixes.
 
+
 ---
 
-## 15. IDs de elementos HTML — OBLIGATORIO
+## 14. IDs de elementos HTML — OBLIGATORIO
 
 Todo elemento **interactuable** lleva `id` con el patrón:
 
@@ -753,38 +546,45 @@ Todo elemento **interactuable** lleva `id` con el patrón:
   (`input`, `dropdown`, `datepicker`, `radio`, `checkbox`, `btn`, `accordion`, `tabs`, `table`,
   `searcher`, `textarea`, `stepper`…); `element` = nombre en inglés del campo/acción.
 - kebab-case, todo en inglés. Sin `id` en elementos de solo lectura (`<p>`, `<h1>`, contenedores de info).
+- Formas cortas: pantalla única de un dominio → `{domain}-{type}-{element}` (`login-input-username`);
+  componente de `shared/` → `{component}-{type}-{element}` (`header-btn-logout`).
 
 ```html
-<ds-form-input id="{domain}-{component}-input-fieldName" ... />
-<ds-button     id="{domain}-form-btn-save" ... />
-<ds-table      id="{domain}-list-table-results" ... />
+<input  id="{domain}-{component}-input-fieldName" ... />
+<button id="{domain}-form-btn-save" ...></button>
+<table  id="{domain}-list-table-results" ...></table>
 ```
 
-Las claves i18n espejan este mismo patrón (§13).
+Las claves i18n espejan este mismo patrón (§12). Los `<label for>` apuntan a estos `id`.
 
 ---
 
-## 16. Pipes y utils compartidos
+## 15. Pipes, utils y validators compartidos
 
-- **Pipes de presentación** (en `shared/pipes/`): `formatDate` (Date → `DD/MM/YYYY`),
-  `dropdownText` (ID de catálogo → etiqueta; acepta arrays y los une con coma),
-  `booleanToYesNo`, `formatDuration`, etc. Es la vía canónica para pintar valores transformados —
-  **prohibido crear métodos `xxxText()` en componentes**.
+- **Pipes** (en `shared/pipes/`): `isInvalidControl` (estado inválido de un control) y
+  `errorMessage` (traduce el primer error de un control). Las transformaciones de presentación van
+  en pipes — **prohibido crear métodos `xxxText()` en componentes**.
 - **Utils puros** (en `shared/utils/` o `{domain}/utils/`): un fichero por tema
-  (`date.utils.ts`, `form.utils.ts`, `object.utils.ts`, `dropdown.utils.ts`…). Funciones exportadas
+  (`dates.utils.ts`, `form.utils.ts`, `objects.utils.ts`, `delay.utils.ts`). Funciones exportadas
   puras y testeables. Cualquier lógica repetida dos veces se extrae aquí.
-- **Validators** reutilizables en `shared/validations/` (o de la librería de utilidades):
-  `dateNotAfterTodayValidator`, `exactLengthValidator(n)`, `numericValidator`…
-- **Servicios compartidos** típicos: gestores de tabla (remota/local), navegación, modo foco,
-  stepper, operaciones de fichero.
+- **Validators** reutilizables en `shared/validations/` (`common.validators.ts`, `date.validators.ts`):
+  `numericValidator`, `exactLengthValidator(n)`, `dateNotAfterTodayValidator`… Devuelven
+  `{ translationTag, interpolationParams? }` para que `errorMessage` los traduzca.
+- **Servicios compartidos** en `shared/services/`: `FormService` (scroll al primer error).
 - **Constantes de opciones estáticas** (radios sí/no, etc.) en `shared/constants/`.
 
 ---
 
-## 17. Testing (Jasmine + Karma)
+## 16. Testing (Jasmine + Karma)
 
-- Specs `.spec.ts` junto al fichero que prueban (`ng test`). **Cobertura mínima 80%** en statements/
-  branches/functions/lines (enums, constants, environments y fake-backend excluidos).
+- Specs `.spec.ts` junto al fichero que prueban. **Cobertura mínima 80%** en statements/
+  branches/functions/lines, **exigida**: `ng test` corre siempre con cobertura y falla por debajo
+  del umbral (`check.global` en `karma.conf.js`; exclusiones en `codeCoverageExclude` de
+  `angular.json`: fake-backend, environments, enums y constants).
+- **Todo fichero con lógica nace con su spec** (componentes, servicios, guards, interceptores,
+  pipes, utils, validators). `npm run test:ci` (una pasada, Chrome headless) antes de subir.
+  Specs de referencia: `pages/main/main.component.spec.ts` (componente),
+  `core/interceptors/http.interceptor.spec.ts` (HTTP) y `shared/utils/form.utils.spec.ts` (util).
 - Setup estándar: `TestBed` con el componente standalone en `imports`, `provideHttpClient() +
   provideHttpClientTesting()`, mocks de servicios vía providers
   (`jasmine.createSpyObj(...)` / `.and.resolveTo(...)`), mock de `ActivatedRoute`/`Router` cuando aplique.
@@ -800,11 +600,11 @@ Las claves i18n espejan este mismo patrón (§13).
 
 ---
 
-## 18. TODOs con seguimiento
+## 17. TODOs con seguimiento
 
 Todo `// TODO` / `<!-- TODO -->` en código **debe registrarse** en un `TODOS.md` en la raíz,
-organizado por secciones (gestor documental, librería de componentes, pendiente de backend,
-funcionalidades pendientes, fake backend…). Formato de fila:
+organizado por secciones (pendiente de backend, funcionalidades pendientes, fake backend, otros —
+ver skill `@track-todos`). Formato de fila:
 
 ```
 | ⏳ | [fichero.ts](ruta/relativa#Lnnn) | Descripción literal del TODO |
@@ -816,16 +616,21 @@ funcionalidades pendientes, fake backend…). Formato de fila:
 
 ---
 
-## 19. Git y calidad
+## 18. Git y calidad
 
 - **Conventional commits** (`feat:`, `fix:`, `refactor:`, `test:`, `chore:`… con scope opcional).
-- Prettier + ESLint + Stylelint obligatorios (`npm run format` antes de commitear).
-- Reglas ESLint relevantes: prohibido `interface` para datos, imports de tipos con `import type`,
-  no `any`, no duplicate enum values (salvo `eslint-disable` justificado en placeholders de catálogo).
+- Prettier + ESLint + Stylelint obligatorios (`npm run lint` + `npm run format` antes de commitear).
+- **Hook `pre-commit`** (husky + lint-staged, `npm install` lo activa vía el script `prepare`):
+  ejecuta Prettier, ESLint (`--fix`) y Stylelint solo sobre los ficheros staged en cada commit, como
+  red de seguridad. No ejecuta tests (serían demasiado lentos para cada commit).
+- Reglas ESLint activas (`eslint.config.mjs`): `type` en vez de `interface`
+  (`consistent-type-definitions`), `import type` / `type X` inline para imports de tipos
+  (`consistent-type-imports`), sin `any`, sin valores de enum duplicados, llaves siempre (`curly`)
+  y `OnPush` obligatorio en componentes.
 
 ---
 
-## 20. Checklist rápido (para revisar cualquier PR / generación)
+## 19. Checklist rápido (para revisar cualquier PR / generación)
 
 - [ ] Fichero en la carpeta correcta y al nivel más bajo posible; sin prefijos redundantes
 - [ ] Orden de secciones del componente + visibilidad explícita (`private` primero)
@@ -833,15 +638,11 @@ funcionalidades pendientes, fake backend…). Formato de fila:
 - [ ] `OnPush` + `styleUrl` singular
 - [ ] `type` (no `interface`); átomos de `shared/models/`; `{Method}Request/Response`
 - [ ] API: `firstValueFrom` + URL relativa (el interceptor añade `environment.api`); métodos en inglés; mock MSW espejo creado
-- [ ] Catálogos: `loadDropdowns()` + `Promise.all` + `{name}Items`
 - [ ] Early returns; llaves siempre; sin `subscribe()`; sin mutar signals
 - [ ] Utils/pipes extraídos si la lógica se repite o es transformación de presentación
 - [ ] SCSS con `@use 'imports' as *` + `:host`; variables/mixins de `src/styles/`; sin redefinir clases globales
 - [ ] `id="{domain}-{component}-{type}-{element}"` en todo elemento interactuable
 - [ ] Todo texto visible con `| translate` / `translate.instant()`; claves con la convención
 - [ ] Notificación de éxito (headers) en escrituras que la requieran
-- [ ] Confirmación modal solo en cancelar/eliminar/irreversible
-- [ ] Estado de listado persistido (ListService); reset con `cleanState`
-- [ ] Formularios con lectura por defecto y patrón de persistencia/reset si comparten URL
-- [ ] Tests con la organización estándar; cobertura ≥ 80%
-- [ ] TODOs registrados en `TODOS.md`; commit con conventional commits
+- [ ] Spec creado/actualizado con la organización estándar; `npm run test:ci` en verde (cobertura ≥ 80%)
+- [ ] TODOs registrados en `TODOS.md`; `npm run lint` limpio; commit con conventional commits

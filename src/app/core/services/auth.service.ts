@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { catchError, Observable, tap, throwError } from 'rxjs';
+import { catchError, type Observable, tap, throwError } from 'rxjs';
 import { LoginService } from '@core/api/login/login.service';
 import { RefreshTokenService } from '@core/api/refresh-token/refresh-token.service';
 import type { LoginRequest, LoginResponse } from '@core/api/login/login.types';
@@ -34,10 +34,10 @@ export class AuthService {
     };
 
     if (!storedUserData) {
-      throwTokenError();
+      return throwTokenError();
     }
 
-    const userData: LoginResponse = JSON.parse(storedUserData!);
+    const userData: LoginResponse = JSON.parse(storedUserData);
 
     return this.refreshTokenService.refreshToken(userData.refreshToken).pipe(
       tap((response) => {

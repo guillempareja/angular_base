@@ -83,7 +83,7 @@ Los dos primeros los cubre `npm run rename`. El resto es decisión de proyecto.
 - **Auth de ejemplo**: login, guard, refresh token automático — eliminable de una pieza.
 - **i18n** con `@ngx-translate` (`src/assets/i18n/es.json`), cero texto hardcodeado.
 - **SCSS propio** (sin librería corporativa): variables, mixins, grid, layouts en `src/styles/`.
-- **Utils y validaciones** reutilizables: fechas, formularios, promesas, objetos, validadores.
+- **Utils y validaciones** reutilizables: fechas, formularios, objetos, delay, validadores.
 - **Calidad**: ESLint + Prettier + Stylelint, path aliases (`@core/`, `@shared/`, `@pages/`),
   configuración multi-entorno (dev / tst / prod), tests con Jasmine + Karma.
 
@@ -95,7 +95,7 @@ src/app/
 │   ├── api/           # Un folder por familia de endpoint: service + types
 │   ├── guards/        # Protección de rutas
 │   ├── interceptors/  # Token, loader, errores
-│   └── services/      # Servicios con estado (auth, loader, modales…)
+│   └── services/      # Servicios con estado (auth, loader, respuesta HTTP)
 ├── pages/             # Dominios de negocio — vertical slices
 └── shared/            # Reutilizables entre 2+ dominios (sin lógica de negocio)
     ├── components/  constants/  directives/  enums/  models/
@@ -114,19 +114,22 @@ posible y solo sube cuando aparece un **segundo consumidor real**. Detalle en `A
 
 ## 🛠️ Desarrollo
 
-Requisitos: Node.js 18+ y Angular CLI 20+.
+Requisitos: Node.js 20.19+ (o 22.12+) y Angular CLI 20+.
 
 ```bash
 npm install         # instalar dependencias
 npm start           # dev server con MSW → http://localhost:4200
 npm run start:tst   # dev server contra la API de test
-npm test            # tests (Jasmine + Karma)
+npm test            # tests (Jasmine + Karma) en modo watch
+npm run test:ci     # una pasada headless; falla si la cobertura baja del 80%
+npm run lint        # ESLint (reglas de arquitectura)
 npm run build       # build de producción
 npm run format      # prettier + stylelint --fix (obligatorio antes de commitear)
 ```
 
 El mock backend se activa con `useMSW: true` en `src/environments/environment.ts`: ponlo a `false`
-para atacar una API real en desarrollo.
+para atacar una API real en desarrollo. MSW **solo existe en desarrollo**: los builds `tst` y
+producción no incluyen ni el worker ni su código.
 
 ---
 

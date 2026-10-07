@@ -1,5 +1,5 @@
-import { Pipe, PipeTransform, inject } from '@angular/core';
-import { AbstractControl } from '@angular/forms';
+import { Pipe, type PipeTransform, inject } from '@angular/core';
+import { type AbstractControl } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 
 @Pipe({ name: 'errorMessage', standalone: true, pure: false })

@@ -1,4 +1,4 @@
-import { ApplicationConfig, LOCALE_ID } from '@angular/core';
+import { type ApplicationConfig, LOCALE_ID } from '@angular/core';
 import { provideRouter, withInMemoryScrolling } from '@angular/router';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideToastr } from 'ngx-toastr';
@@ -8,7 +8,6 @@ import {
   withFetch,
 } from '@angular/common/http';
 import { routes } from './app.routes';
-import { provideHttpCache, withHttpCacheInterceptor } from '@ngneat/cashew';
 import { customHttpInterceptor } from '@core/interceptors/http.interceptor';
 import { provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
@@ -26,11 +25,7 @@ export const appConfig: ApplicationConfig = {
       positionClass: 'toast-top-center',
       preventDuplicates: true,
     }),
-    provideHttpClient(
-      withInterceptors([withHttpCacheInterceptor(), customHttpInterceptor]),
-      withFetch(),
-    ),
-    provideHttpCache(),
+    provideHttpClient(withInterceptors([customHttpInterceptor]), withFetch()),
     { provide: LOCALE_ID, useValue: 'es-ES' },
     provideTranslateService({
       loader: provideTranslateHttpLoader({

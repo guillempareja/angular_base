@@ -14,25 +14,31 @@ user-invocable: true
 
 ## 1. Reglas generales
 
-- Specs `.spec.ts` junto al fichero que prueban. Se ejecutan con `ng test`.
-- **Cobertura mínima 80%** en statements/branches/functions/lines
-  (enums, constants, environments y fake-backend excluidos).
+- Specs `.spec.ts` junto al fichero que prueban. Se ejecutan con `ng test` (watch) o
+  `npm run test:ci` (una pasada, Chrome headless).
+- **Cobertura mínima 80%** en statements/branches/functions/lines, **exigida**: los tests corren
+  siempre con cobertura y fallan por debajo del umbral (`check.global` en `karma.conf.js`).
+  Excluidos en `angular.json` (`codeCoverageExclude`): fake-backend, environments, enums y constants.
+- **Todo fichero nuevo con lógica lleva su spec en el mismo cambio** — no se deja para después.
+  Tras crear o modificar código, ejecutar `npm run test:ci` y no dar la tarea por terminada si falla.
 - Patrón **AAA** (Arrange, Act, Assert). Un test = una aserción (ideal).
 - Nombres descriptivos: `'should NOT render X when condition is false'`.
 
 ## 2. Setup estándar de componente
 
-```typescript
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideHttpClient } from '@angular/common/http';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { TranslateModule } from '@ngx-translate/core';
-import ExampleComponent from './example.component';
-import { ExampleService } from '@core/api/example/example.service';
+Referencia viva: [`main.component.spec.ts`](../../../src/app/pages/main/main.component.spec.ts)
+(componente), [`http.interceptor.spec.ts`](../../../src/app/core/interceptors/http.interceptor.spec.ts)
+(HTTP con `HttpTestingController`) y [`form.utils.spec.ts`](../../../src/app/shared/utils/form.utils.spec.ts) (util).
 
-describe('ExampleComponent', () => {
-  let component: ExampleComponent;
-  let fixture: ComponentFixture<ExampleComponent>;
+```typescript
+import { type ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideTranslateService } from '@ngx-translate/core';
+import { ExampleService } from '@core/api/example/example.service';
+import MainComponent from './main.component';
+
+describe('MainComponent', () => {
+  let component: MainComponent;
+  let fixture: ComponentFixture<MainComponent>;
   let exampleServiceSpy: jasmine.SpyObj<ExampleService>;
 
   beforeEach(async () => {
@@ -40,15 +46,14 @@ describe('ExampleComponent', () => {
     exampleServiceSpy.getExample.and.resolveTo({ example: 'mock' });
 
     await TestBed.configureTestingModule({
-      imports: [ExampleComponent, TranslateModule.forRoot()],
+      imports: [MainComponent],
       providers: [
-        provideHttpClient(),
-        provideHttpClientTesting(),
+        provideTranslateService(),
         { provide: ExampleService, useValue: exampleServiceSpy },
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(ExampleComponent);
+    fixture = TestBed.createComponent(MainComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
@@ -60,6 +65,9 @@ describe('ExampleComponent', () => {
 ```
 
 - El componente standalone va en `imports` (no en `declarations`).
+- `provideTranslateService()` para que el `TranslatePipe` funcione (devuelve la clave tal cual).
+- Si el componente usa `HttpClient` real (no mockeado): `provideHttpClient()` + `provideHttpClientTesting()`.
+- Datos async de `ngOnInit`: `await fixture.whenStable()` + `fixture.detectChanges()` antes de asertar el DOM.
 - Mock de `ActivatedRoute`/`Router` vía providers cuando aplique
   (`{ provide: Router, useValue: jasmine.createSpyObj('Router', ['navigate']) }`).
 

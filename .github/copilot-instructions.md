@@ -25,7 +25,7 @@ Placeholders y pasos manuales: [`README.md`](../README.md) § Placeholders.
 
 SPA Angular 20 (standalone + signals) con npm y Angular CLI. Sin librerías corporativas: estilos
 propios en `src/styles/`, mock backend con MSW en `src/fake-backend/`, i18n con @ngx-translate,
-toasts con ngx-toastr, caché HTTP con @ngneat/cashew.
+toasts con ngx-toastr.
 
 ```
 core/      Infraestructura: api/ (servicios HTTP, ver abajo), guards/, interceptors/, services/
@@ -76,6 +76,8 @@ Orden de secciones **estricto** con comentarios separadores:
 
 ## Estilos (SCSS)
 
+Guía completa del sistema de estilos: [`src/styles/README.md`](../src/styles/README.md).
+
 - Todo SCSS de componente empieza con `@use 'imports' as *;` y scopa con `:host`
   (encapsulación por defecto — no se usa `ViewEncapsulation.None`).
 - Variables y mixins de `src/styles/` siempre: `$spacing-md`, `$color-primary-500`, `rem(24)`,
@@ -95,11 +97,13 @@ Todo `// TODO` se registra en `TODOS.md` (raíz). Detalles: skill `@track-todos`
 
 ## Tests
 
-Jasmine + Karma (`ng test`), cobertura mínima 80%. Detalles: skill `@testing`.
+Jasmine + Karma, cobertura mínima 80% **exigida** (`npm run test:ci` falla por debajo). Todo fichero
+con lógica nace con su spec. Detalles: skill `@testing`.
 
 ## Git
 
-Conventional commits (`feat:`, `fix:`, `refactor:`…). `npm run format` antes de commitear.
+Conventional commits (`feat:`, `fix:`, `refactor:`…). `npm run lint` + `npm run format` antes de commitear.
+Hook `pre-commit` (husky + lint-staged) formatea/valida automáticamente los ficheros staged.
 
 ---
 

@@ -53,6 +53,10 @@ Sustituye `App Template` → nombre visible y `app-template` → slug en `packag
 - Renombrar la **carpeta del repositorio** al slug (requiere cerrar el editor).
 - Actualizar `src/environments/environment.ts|tst|prod.ts` con las URLs reales de API.
 - Sustituir `src/assets/images/favicon.ico` y la paleta de `src/styles/base/_variables.scss`.
+- Revisar las utilidades de `src/styles/ui/` (grid, layouts, textos): son una base genérica y
+  básica (ver "Nota sobre el cascarón" en [`src/styles/README.md`](../../../src/styles/README.md)).
+  Si la app adopta una librería de estilos o un design system propio, borrar las que dejen de
+  usarse; si se siguen usando tal cual, no hace falta tocar nada.
 
 ---
 
@@ -69,6 +73,9 @@ src/app/pages/main/                → reconvertir en la primera pantalla real, 
 
 En `src/assets/i18n/es.json`: borrar el bloque `main.*` si desaparece la página, y las claves
 `httpRequest.*.custom*` (son mensajes de demo del mock, no de la app real).
+
+Los specs se van con su código (`example.service.spec.ts`, `main.component.spec.ts`): si se
+reconvierte `main`, reescribir su spec. La cobertura exigida (80%) debe seguir cumpliéndose.
 
 > Antes de borrar `pages/main/`, comprobar la ruta comodín de `src/app/app.routes.ts`
 > (`{ path: '**', redirectTo: 'main' }`): debe apuntar a una ruta que exista.
@@ -87,17 +94,35 @@ src/app/core/services/auth.service.ts src/app/shared/models/auth.types.ts
 src/fake-backend/handlers/login/      src/fake-backend/handlers/refresh-token/
 ```
 
-…más el bloque de usuario de `shared/components/header/`, las claves `login.*` del i18n,
+…más el bloque de usuario de `shared/components/header/` (y con él `ngx-pipes`, que solo se usa
+ahí para `ucfirst`: `npm uninstall ngx-pipes`), las claves `login.*` del i18n,
 la parte de token de `core/interceptors/http.interceptor.ts` y las rutas afectadas.
+Con ellos se van sus specs (`auth.service`, `auth.guard`, `login`, `refresh-token`), y hay que
+quitar los casos de token/refresh de `http.interceptor.spec.ts` y de `header.component.spec.ts`.
 
 Si **sí** la necesita: ajustar `fake-backend/handlers/login/mocks.ts` al contrato real del backend
 y revisar los tipos de `core/api/login/login.types.ts`.
 
 ---
 
-## 5. Montar el dominio real
+## 5. Ajustar el shell de UI y la base genérica
 
-Un dominio por *vertical slice* bajo `pages/{domain}/`, siguiendo §3 y §11 de `ARCHITECTURE.md`.
+El template trae piezas propias y mínimas. Decidir cada una según la app (preguntar si no se deduce
+del prompt, sobre todo si se va a usar una **librería de componentes**):
+
+| Pieza | Qué hacer |
+|---|---|
+| `shared/components/header/` | Adaptar al header real o sustituir por el de la librería |
+| `shared/components/footer/` | Está vacío: rellenarlo o borrarlo (+ `app.component.*`) si la app no tiene footer |
+| `shared/components/global-loader/` | Mantener, o sustituir su template por el spinner de la librería (el `LoaderService` y el header `SHOW_LOADER` se quedan) |
+| `src/styles/base/_globals.scss` | Ajustar los estilos de elementos (`body`, `h1`, `h2`…) a la tipografía del proyecto, o quitarlos si los pone la librería |
+| `shared/utils/`, `shared/validations/`, `shared/pipes/` | Son la librería base: se mantienen. Borrar solo lo que una librería del proyecto duplique |
+
+---
+
+## 6. Montar el dominio real
+
+Un dominio por *vertical slice* bajo `pages/{domain}/`, siguiendo §3 y §10 de `ARCHITECTURE.md`.
 Para cada pieza, **cargar antes la skill correspondiente**:
 
 | Pieza a crear | Skill |
@@ -112,20 +137,36 @@ Orden recomendado: rutas y páginas vacías → capa API + mocks → formularios
 
 ---
 
-## 6. Actualizar la documentación del repo
+## 7. Actualizar la documentación del repo
 
 - **`README.md`**: sustituir la descripción de template por la de la aplicación real
-  (qué hace, dominios, endpoints) y borrar la sección "Arrancar un proyecto nuevo".
+  (qué hace, dominios, endpoints) y borrar las secciones "Arrancar un proyecto nuevo",
+  "Placeholders del template" y "Mantener el template".
 - **`.github/copilot-instructions.md`**: actualizar el título y la línea de dominios de la sección
   *Proyecto* con los dominios reales.
 - **`ARCHITECTURE.md`**: **no se toca**. Es agnóstico de negocio y se mantiene como fuente de verdad.
 
 ---
 
-## 7. Verificar antes de dar por hecho el arranque
+## 8. Retirar el andamiaje del template
+
+Lo que solo sirve para arrancar el proyecto **se borra** al terminar (esta skill incluida):
+
+- `scripts/rename-project.mjs` (y `scripts/` si queda vacía) + el script `rename` de `package.json`.
+- `.github/skills/new-project/` + su fila en `.github/skills/SKILLS.md`.
+- `.claude/commands/new-project.md`.
+- Toda referencia a `@new-project`, `/new-project` y `npm run rename` en `CLAUDE.md` (aviso inicial,
+  lista de skills, comandos) y en `.github/copilot-instructions.md` (lista de skills y sección
+  "Este repo es un template").
+
+---
+
+## 9. Verificar antes de dar por hecho el arranque
 
 ```bash
 npm run format
+npm run lint
+npm run test:ci  # falla si la cobertura baja del 80%
 npx ng build
 npm start        # comprobar que arranca con MSW y que no quedan rutas rotas
 ```
@@ -138,11 +179,14 @@ npm start        # comprobar que arranca con MSW y que no quedan rutas rotas
 - [ ] `environment.ts|tst|prod.ts` sin placeholders `api.example.com` (o TODO registrado)
 - [ ] Dominio `example` borrado (API + handlers MSW + wiring + claves i18n)
 - [ ] Auth conservado íntegro o eliminado íntegro — nunca a medias
+- [ ] Shell de UI (header, footer, global-loader, `_globals.scss`) revisado
 - [ ] Ruta `**` apuntando a una ruta existente
 - [ ] Dominios reales creados como vertical slices, con sus mocks MSW
 - [ ] Cero texto hardcodeado (todo por `@i18n`)
 - [ ] `README.md` y `copilot-instructions.md` describen la app real; `ARCHITECTURE.md` intacto
-- [ ] `npm run format` + `npx ng build` en verde
+- [ ] Andamiaje retirado: script `rename`, skill y comando `new-project`, referencias en docs
+- [ ] Specs de referencia de `main`/`example` sustituidas por las de la app real
+- [ ] `npm run format` + `npm run lint` + `npm run test:ci` + `npx ng build` en verde
 
 ## Regla de oro
 

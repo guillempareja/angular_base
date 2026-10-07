@@ -1,5 +1,5 @@
-import { Pipe, PipeTransform } from '@angular/core';
-import { AbstractControl } from '@angular/forms';
+import { Pipe, type PipeTransform } from '@angular/core';
+import { type AbstractControl } from '@angular/forms';
 
 @Pipe({
   name: 'isInvalidControl',

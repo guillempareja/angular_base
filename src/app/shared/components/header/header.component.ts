@@ -1,9 +1,7 @@
-import { CommonModule } from '@angular/common';
 import {
-  AfterViewInit,
+  type AfterViewInit,
   ChangeDetectionStrategy,
   Component,
-  CUSTOM_ELEMENTS_SCHEMA,
   ElementRef,
   inject,
 } from '@angular/core';
@@ -13,11 +11,10 @@ import { NgPipesModule } from 'ngx-pipes';
 
 @Component({
   selector: 'header',
-  imports: [CommonModule, NgPipesModule, TranslatePipe],
+  imports: [NgPipesModule, TranslatePipe],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class HeaderComponent implements AfterViewInit {
   // Injections

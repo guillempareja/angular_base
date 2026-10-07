@@ -29,8 +29,6 @@ core/api/
 
 ```typescript
 // core/api/example/example.types.ts
-import type { Token } from '@shared/models/auth.types';
-
 //----------------------------------------------------------------
 // DOMAIN DATA TYPES
 //----------------------------------------------------------------
@@ -65,7 +63,6 @@ Reglas:
 - Dos bloques con comentario-banner: tipos de dominio arriba, Request/Response abajo.
 - `type` siempre, `interface` nunca. `import type` para imports solo de tipos.
 - Un `types.ts` puede re-exportar átomos que sus consumidores necesiten (`export type { Token };`).
-- Búsquedas paginadas: genéricos `DataQueryRequest<Filter>` / `DataQueryResponse<Data>` de `shared/models/`.
 
 ## 3. Service (`{familia}.service.ts`)
 
@@ -130,7 +127,6 @@ export const examplePostMock = {
 ```
 
 - Objetos planos con datos realistas, **sin anotaciones de tipo** (se infieren) y sin lógica.
-- Para IDs de catálogo, comentario con la etiqueta (`categoryId: '2', // 2 = Active`).
 - Solo los campos que la UI necesita.
 
 ### handlers.ts

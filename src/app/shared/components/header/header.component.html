@@ -1,7 +1,7 @@
 <div class="header-wrapper">
   @if (authService.userData()) {
     <span>{{ authService.userData()!.username | ucfirst }}</span>
-    <button (click)="authService.logout()">
+    <button id="header-btn-logout" (click)="authService.logout()">
       {{ 'common.logout' | translate }}
     </button>
   }

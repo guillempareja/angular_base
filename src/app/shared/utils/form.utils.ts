@@ -1,4 +1,4 @@
-import { FormGroup, AbstractControl } from '@angular/forms';
+import { FormGroup, type AbstractControl } from '@angular/forms';
 
 /**
  * Marca todos los controles y subcontroles de un formulario como 'touched'.

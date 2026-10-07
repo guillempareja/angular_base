@@ -25,6 +25,15 @@ export default [
     },
     rules: {
       'prettier/prettier': 'error',
+      curly: 'error',
+      '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
+      '@typescript-eslint/consistent-type-imports': [
+        'error',
+        { fixStyle: 'inline-type-imports' },
+      ],
+      '@typescript-eslint/no-explicit-any': 'error',
+      '@typescript-eslint/no-duplicate-enum-values': 'error',
+      '@angular-eslint/prefer-on-push-component-change-detection': 'error',
     },
   },
   // Angular HTML templates

@@ -29,20 +29,7 @@
             "stylePreprocessorOptions": {
               "includePaths": ["src/styles"]
             },
-            "assets": [
-              "src/assets",
-              "src/assets/fonts",
-              {
-                "glob": "mockServiceWorker.js",
-                "input": "src/fake-backend/",
-                "output": "/"
-              },
-              {
-                "glob": "**/*",
-                "input": "src/assets/fonts/",
-                "output": "/fonts/"
-              }
-            ],
+            "assets": ["src/assets"],
             "styles": [
               "node_modules/ngx-toastr/toastr.css",
               "src/styles/app.scss"
@@ -55,6 +42,10 @@
                 {
                   "replace": "src/environments/environment.ts",
                   "with": "src/environments/environment.prod.ts"
+                },
+                {
+                  "replace": "src/fake-backend/enable-mocking.ts",
+                  "with": "src/fake-backend/enable-mocking.noop.ts"
                 }
               ],
               "budgets": [
@@ -76,6 +67,10 @@
                 {
                   "replace": "src/environments/environment.ts",
                   "with": "src/environments/environment.tst.ts"
+                },
+                {
+                  "replace": "src/fake-backend/enable-mocking.ts",
+                  "with": "src/fake-backend/enable-mocking.noop.ts"
                 }
               ],
               "optimization": false,
@@ -87,7 +82,15 @@
             "development": {
               "optimization": false,
               "extractLicenses": false,
-              "sourceMap": true
+              "sourceMap": true,
+              "assets": [
+                "src/assets",
+                {
+                  "glob": "mockServiceWorker.js",
+                  "input": "src/fake-backend/",
+                  "output": "/"
+                }
+              ]
             }
           },
           "defaultConfiguration": "production"
@@ -122,21 +125,16 @@
             "stylePreprocessorOptions": {
               "includePaths": ["src/styles"]
             },
-            "assets": [
-              "src/assets",
-              "src/assets/fonts",
-              {
-                "glob": "mockServiceWorker.js",
-                "input": "src/fake-backend/",
-                "output": "/"
-              },
-              {
-                "glob": "**/*",
-                "input": "src/assets/fonts/",
-                "output": "/fonts/"
-              }
-            ],
-            "scripts": []
+            "assets": ["src/assets"],
+            "scripts": [],
+            "karmaConfig": "karma.conf.js",
+            "codeCoverage": true,
+            "codeCoverageExclude": [
+              "src/fake-backend/**",
+              "src/environments/**",
+              "src/app/shared/enums/**",
+              "src/app/shared/constants/**"
+            ]
           }
         }
       }

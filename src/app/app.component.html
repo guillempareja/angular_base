@@ -7,11 +7,3 @@
 @if (loaderService.isLoading()) {
   <global-loader></global-loader>
 }
-
-<modal
-  [(show)]="genericModalsService.isModalVisible"
-  [title]="genericModalsService.title()"
-  [text]="genericModalsService.text()"
-  [acceptOnly]="genericModalsService.acceptOnly()"
-  (confirm)="genericModalsService.confirmResp.resolve($event)"
-/>
