@@ -55,7 +55,7 @@ Orden de secciones **estricto** con comentarios separadores:
 `// Computeds` → `// Effects` → `// Methods` (lifecycle primero, luego privados, luego públicos).
 
 - `inject()` siempre — nunca constructor. Visibilidad explícita: `private` por defecto,
-  `public` solo si el template lo usa.
+  `public` solo si el template lo usa. Los `effect` siempre `private`.
 - Signals para todo estado reactivo (`signal`/`computed`/`effect`); nunca mutar contenido de un
   signal — siempre `set`/`update`. APIs nuevas: `input()`, `output()`, `viewChild()`, `model()`.
 - `ChangeDetectionStrategy.OnPush` siempre; `styleUrl` singular; sin `standalone: true`;

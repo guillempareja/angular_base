@@ -427,7 +427,7 @@ export class ExampleComponent {
   public hasItems = computed(() => this.items().length > 0);
 
   // Effects
-  resetFormOnDataChange = effect(() => { ... }); // effects con nombre descriptivo, sin sufijo "effect"
+  private resetFormOnDataChange = effect(() => { ... }); // siempre private; nombre descriptivo, sin sufijo "effect"
 
   // Methods
   public ngOnInit(): void { ... }                // lifecycle primero
