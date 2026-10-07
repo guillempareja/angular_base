@@ -42,7 +42,9 @@ describe('AppComponent', () => {
 
   describe('DOM Rendering', () => {
     it('should NOT render the global loader when idle', () => {
-      expect(fixture.nativeElement.querySelector('global-loader')).toBeNull();
+      expect(
+        fixture.nativeElement.querySelector('app-global-loader'),
+      ).toBeNull();
     });
 
     it('should render the global loader while loading', () => {
@@ -50,7 +52,7 @@ describe('AppComponent', () => {
       fixture.detectChanges();
 
       expect(
-        fixture.nativeElement.querySelector('global-loader'),
+        fixture.nativeElement.querySelector('app-global-loader'),
       ).not.toBeNull();
       loaderService.hide();
       fixture.detectChanges();

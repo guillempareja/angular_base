@@ -17,9 +17,9 @@ export class HttpResponseHandlerService {
    * Handles HTTP errors and shows translated messages
    * @param error - HTTP error received
    */
-  handleHttpError(error: HttpErrorResponse): void {
+  public handleHttpError(error: HttpErrorResponse): void {
     const errorTag = error.error?.tag;
-    const message = this.translateServerMessage(errorTag || 'default');
+    const message = this.translateServerMessage(errorTag ?? 'default');
     this.toastr.error(message);
   }
 
@@ -27,7 +27,7 @@ export class HttpResponseHandlerService {
    * Handles HTTP warnings and shows translated messages
    * @param error - HTTP warning received
    */
-  handleHttpWarning(warningTag: string): void {
+  public handleHttpWarning(warningTag: string): void {
     const message = this.translateServerMessage(warningTag, 'warning');
     this.toastr.warning(message);
   }
@@ -36,7 +36,7 @@ export class HttpResponseHandlerService {
    * Handles success responses and shows translated messages
    * @param successTag - Success tag sent by server
    */
-  handleSuccessResponse(successTag: string = 'default'): void {
+  public handleSuccessResponse(successTag: string = 'default'): void {
     const message = this.translateServerMessage(successTag, 'success');
     this.toastr.success(message);
   }
@@ -44,7 +44,7 @@ export class HttpResponseHandlerService {
   /**
    * Handles session expired errors
    */
-  handleSessionExpired(): void {
+  public handleSessionExpired(): void {
     this.toastr.error(
       this.translate.instant('httpRequest.error.sessionExpired'),
     );

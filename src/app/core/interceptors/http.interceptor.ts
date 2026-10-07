@@ -22,6 +22,35 @@ import { AuthService } from '@core/services/auth.service';
 import { HttpResponseHandlerService } from '@core/services/http-response-handler.service';
 import { HttpCustomHeader } from '@shared/enums/http-custom-headers.enum';
 
+const notifyResponse = (
+  req: HttpRequest<unknown>,
+  res: HttpResponse<unknown>,
+  responseHandler: HttpResponseHandlerService,
+): void => {
+  // Check for backend warning message header (from response)
+  const warningTag = res.headers.get(HttpCustomHeader.CUSTOM_WARNING_MESSAGE);
+  if (warningTag) {
+    responseHandler.handleHttpWarning(warningTag);
+    return;
+  }
+
+  // Check for default success message header
+  if (
+    req.headers.get(HttpCustomHeader.SHOW_DEFAULT_SUCCESS_MESSAGE) === 'true'
+  ) {
+    responseHandler.handleSuccessResponse();
+    return;
+  }
+
+  // Check for custom success message header
+  const customSuccessTag = req.headers.get(
+    HttpCustomHeader.CUSTOM_SUCCESS_MESSAGE,
+  );
+  if (customSuccessTag) {
+    responseHandler.handleSuccessResponse(customSuccessTag);
+  }
+};
+
 export const customHttpInterceptor: HttpInterceptorFn = (
   req: HttpRequest<unknown>,
   next: HttpHandlerFn,
@@ -35,9 +64,10 @@ export const customHttpInterceptor: HttpInterceptorFn = (
   const authService = inject(AuthService);
   const responseHandler = inject(HttpResponseHandlerService);
 
+  const userData = authService.userData();
   const headers: Record<string, string> = {};
-  if (authService.userData()) {
-    headers['Authorization'] = `Bearer ${authService.userData()!.token}`;
+  if (userData) {
+    headers['Authorization'] = `Bearer ${userData.token}`;
   }
 
   const modifiedReq = req.clone({
@@ -79,33 +109,9 @@ export const customHttpInterceptor: HttpInterceptorFn = (
     filter(
       (event): event is HttpResponse<unknown> => event instanceof HttpResponse,
     ),
-    tap((res: HttpResponse<unknown>) => {
-      // Check for backend warning message header (from response)
-      const warningTag = res.headers.get(
-        HttpCustomHeader.CUSTOM_WARNING_MESSAGE,
-      );
-      if (warningTag) {
-        responseHandler.handleHttpWarning(warningTag);
-        return;
-      }
-
-      // Check for default success message header
-      if (
-        req.headers.get(HttpCustomHeader.SHOW_DEFAULT_SUCCESS_MESSAGE) ===
-        'true'
-      ) {
-        responseHandler.handleSuccessResponse();
-        return;
-      }
-
-      // Check for custom success message header
-      const customSuccessTag = req.headers.get(
-        HttpCustomHeader.CUSTOM_SUCCESS_MESSAGE,
-      );
-      if (customSuccessTag) {
-        responseHandler.handleSuccessResponse(customSuccessTag);
-      }
-    }),
+    tap((res: HttpResponse<unknown>) =>
+      notifyResponse(req, res, responseHandler),
+    ),
     catchError((error: HttpErrorResponse) => {
       if (error.status === 401) {
         if (req.url === '/refreshToken') {

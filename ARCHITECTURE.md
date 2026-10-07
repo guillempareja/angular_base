@@ -618,17 +618,43 @@ ver skill `@track-todos`). Formato de fila:
 
 ## 18. Git y calidad
 
-- **Conventional commits** (`feat:`, `fix:`, `refactor:`, `test:`, `chore:`… con scope opcional).
-- Prettier + ESLint + Stylelint obligatorios (`npm run lint` + `npm run format` antes de commitear).
+- **Conventional commits** (`feat:`, `fix:`, `refactor:`, `test:`, `chore:`… con scope opcional),
+  **validados** por el hook `commit-msg`.
+- Prettier + ESLint + Stylelint obligatorios (`npm run lint` + `npm run format` antes de commitear;
+  `npm run check` ejecuta todo lo que hace CI: formato, lint, estilos, tests y build).
 - **Hook `pre-commit`** (husky + lint-staged, `npm install` lo activa vía el script `prepare`):
   ejecuta Prettier, ESLint (`--fix`) y Stylelint solo sobre los ficheros staged en cada commit, como
   red de seguridad. No ejecuta tests (serían demasiado lentos para cada commit).
-- **Hook `pre-push`** (husky): ejecuta `npm run test:ci` antes de subir; bloquea el push si falla
-  algún test o la cobertura baja del 80%.
-- Reglas ESLint activas (`eslint.config.mjs`): `type` en vez de `interface`
-  (`consistent-type-definitions`), `import type` / `type X` inline para imports de tipos
-  (`consistent-type-imports`), sin `any`, sin valores de enum duplicados, llaves siempre (`curly`)
-  y `OnPush` obligatorio en componentes.
+- **Hook `commit-msg`** (husky): rechaza mensajes que no sigan conventional commits.
+- **Hook `pre-push`** (husky): ejecuta `npm run lint` y `npm run test:ci` antes de subir; bloquea el
+  push si falla el lint, algún test o la cobertura baja del 80%.
+- **CI** (`.github/workflows/ci.yml`): en cada push a `main` y en cada PR ejecuta formato, lint,
+  estilos, tests, build y `npm audit` de dependencias de producción; sube la cobertura como
+  artefacto. Los hooks se pueden saltar con `--no-verify`; CI no.
+- **Node**: versión fijada en `.nvmrc` (la usa CI) y `engines` de `package.json` (≥ 20.19, requisito de Angular 20).
+- Reglas ESLint activas (`eslint.config.mjs`):
+  - Tipos: `type` en vez de `interface`, `import type`, sin `any`, sin valores de enum duplicados.
+  - Estilo: llaves siempre (`curly`), `eqeqeq` (permite `== null`), `no-var`, `prefer-const`,
+    `no-console` (solo `warn`/`error`; libre en `fake-backend/`), sin variables sin usar
+    (prefijo `_` para ignorar).
+  - Convenciones: visibilidad explícita en todos los miembros, booleans con prefijo `is/has/should`,
+    sin promesas flotantes (`void` explícito si se dispara y se sale), sin `!` (non-null assertion),
+    `??` en vez de `||` para nulos, `switch` exhaustivos.
+  - Complejidad (refuerza "early returns"): `complexity` ≤ 10, `max-depth` ≤ 3,
+    `max-lines-per-function` ≤ 80 (no aplica a specs). Si una función lo supera, se extrae.
+  - Angular moderno: `OnPush`, standalone, signals (`input`/`output`/`viewChild`), `inject()`, sin
+    `ViewEncapsulation.None`, `providedIn` en servicios, sin APIs legacy, lifecycle ordenado.
+  - Selectores: componentes `app-*` en kebab-case y directivas `app*` en camelCase. Para conservar
+    el landmark semántico (`<header>`, `<footer>`) se envuelve: `<header><app-header /></header>`.
+  - Arquitectura: `subscribe()` prohibido fuera de `core/interceptors/`; `core/` y `shared/` no
+    pueden importar de `@pages/`.
+  - Specs: `fit`, `fdescribe`, `xit` y `xdescribe` prohibidos (Karma los da por pasados).
+  - Templates: `@if`/`@for` (no `*ngIf`/`*ngFor`), sin estilos inline.
+- **TypeScript estricto** (`tsconfig.json`): `strict` + `noUnusedLocals`, `noUnusedParameters`,
+  `noUncheckedIndexedAccess`, `noImplicitReturns`, `noImplicitOverride`. Los diagnósticos extendidos
+  de Angular (`extendedDiagnostics`) están como `error`.
+- **Presupuestos de bundle** (`angular.json`, producción): inicial 500 kB aviso / 1 MB error; estilos
+  de componente 4 kB aviso / 8 kB error.
 - **Accesibilidad** en los templates `.html`: reglas a11y de `@angular-eslint/template` (`alt-text`,
   `button-has-type`, `click-events-have-key-events`, `elements-content`, `interactive-supports-focus`,
   `label-has-associated-control`, `mouse-events-have-key-events`, `no-autofocus`,

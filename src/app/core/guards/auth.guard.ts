@@ -9,14 +9,14 @@ export class AuthGuard implements CanActivate {
   private router = inject(Router);
   private authService = inject(AuthService);
 
-  canActivate(): boolean {
+  public canActivate(): boolean {
     const userData = this.authService.userData();
 
     if (userData?.token) {
       return true;
     }
 
-    this.router.navigate(['/login']);
+    void this.router.navigate(['/login']);
     return false;
   }
 }

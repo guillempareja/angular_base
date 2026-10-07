@@ -1,0 +1,12 @@
+subject=$(head -n 1 "$1")
+pattern='^(feat|fix|refactor|test|chore|docs|style|perf|build|ci|revert)(\([a-z0-9._/-]+\))?!?: .+'
+
+if echo "$subject" | grep -qE '^(Merge|Revert|fixup!|squash!) '; then
+  exit 0
+fi
+
+if ! echo "$subject" | grep -qE "$pattern"; then
+  echo "Commit message must follow Conventional Commits: <type>(scope)?: <description>"
+  echo "Types: feat, fix, refactor, test, chore, docs, style, perf, build, ci, revert"
+  exit 1
+fi

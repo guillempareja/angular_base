@@ -23,7 +23,7 @@ export class AuthService {
     const response = await this.loginService.login(credentials);
     localStorage.setItem('userData', JSON.stringify(response));
     this.userData.set(response);
-    this.router.navigate(['/main']);
+    void this.router.navigate(['/main']);
   }
 
   public refreshToken(): Observable<RefreshTokenResponse> {
@@ -63,6 +63,6 @@ export class AuthService {
   public logout(): void {
     this.userData.set(null);
     localStorage.removeItem('userData');
-    this.router.navigate(['/login']);
+    void this.router.navigate(['/login']);
   }
 }

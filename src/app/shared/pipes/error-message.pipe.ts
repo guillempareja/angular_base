@@ -16,64 +16,27 @@ export class ErrorMessagePipe implements PipeTransform {
     // Add more as needed: email, min, max, pattern, minlength, maxlength, etc.
   };
 
-  /**
-   * Returns an error message based on the first error found among one or more controls.
-   * - Accepts a single AbstractControl or an array of them.
-   * - Finds the first control that has an error and retrieves its first error key.
-   * - For Angular native validators (like 'required'), translates using i18n.
-   * - For custom validators with objects containing 'translationTag', translates them.
-   * - If errorValue is a plain string, returns it directly (for custom overrides from parent).
-   * - Supports custom error messages passed as parameter that override defaults.
-   *
-   * @param controls      One control or an array of controls to inspect.
-   * @param errorMessages Optional overrides e.g. { required: 'Este campo es obligatorio' }.
-   */
-  transform(
-    controls: AbstractControl | AbstractControl[],
-    errorMessages: Record<string, string> = {},
-  ): string {
-    if (!controls) {
-      return '';
-    }
-
-    // Normalize to array
-    const list: AbstractControl[] = Array.isArray(controls)
-      ? controls.filter((item): item is AbstractControl => !!item)
-      : [controls];
-
-    // Find first control that has errors
-    let errorKey: string | undefined;
-    let errorValue: unknown;
-
-    for (const control of list) {
-      const keys = control.errors ? Object.keys(control.errors) : [];
-      if (keys.length) {
-        errorKey = keys[0];
-        errorValue = control.errors![errorKey];
-        break;
+  private findFirstError(
+    controls: AbstractControl[],
+  ): { key: string; value: unknown } | null {
+    for (const control of controls) {
+      const errors = control.errors;
+      const key = errors ? Object.keys(errors)[0] : undefined;
+      if (errors && key) {
+        return { key, value: errors[key] };
       }
     }
 
-    if (!errorKey) {
-      return '';
-    }
+    return null;
+  }
 
-    // Check if there's a custom error message override
-    if (errorMessages[errorKey]) {
-      return errorMessages[errorKey];
-    }
-
-    // Handle Angular native validators (translate from i18n)
-    if (this.ANGULAR_NATIVE_VALIDATORS[errorKey]) {
-      return this.translate.instant(this.ANGULAR_NATIVE_VALIDATORS[errorKey]);
-    }
-
-    // If errorValue is a plain string, return it directly (custom message from parent)
+  private resolveErrorValue(errorValue: unknown): string {
+    // Plain string: custom message from parent
     if (typeof errorValue === 'string') {
       return errorValue;
     }
 
-    // For custom validators with object containing translationTag and optional interpolationParams
+    // Custom validators: object with translationTag and optional interpolationParams
     if (
       typeof errorValue === 'object' &&
       errorValue !== null &&
@@ -91,5 +54,50 @@ export class ErrorMessagePipe implements PipeTransform {
 
     // Generic fallback message
     return this.translate.instant('form.invalidFieldError');
+  }
+
+  /**
+   * Returns an error message based on the first error found among one or more controls.
+   * - Accepts a single AbstractControl or an array of them.
+   * - Finds the first control that has an error and retrieves its first error key.
+   * - For Angular native validators (like 'required'), translates using i18n.
+   * - For custom validators with objects containing 'translationTag', translates them.
+   * - If errorValue is a plain string, returns it directly (for custom overrides from parent).
+   * - Supports custom error messages passed as parameter that override defaults.
+   *
+   * @param controls      One control or an array of controls to inspect.
+   * @param errorMessages Optional overrides e.g. { required: 'Este campo es obligatorio' }.
+   */
+  public transform(
+    controls: AbstractControl | AbstractControl[],
+    errorMessages: Record<string, string> = {},
+  ): string {
+    if (!controls) {
+      return '';
+    }
+
+    // Normalize to array
+    const list: AbstractControl[] = Array.isArray(controls)
+      ? controls.filter((item): item is AbstractControl => !!item)
+      : [controls];
+
+    const firstError = this.findFirstError(list);
+    if (!firstError) {
+      return '';
+    }
+
+    // Custom error message override
+    const customMessage = errorMessages[firstError.key];
+    if (customMessage) {
+      return customMessage;
+    }
+
+    // Angular native validators (translate from i18n)
+    const nativeTag = this.ANGULAR_NATIVE_VALIDATORS[firstError.key];
+    if (nativeTag) {
+      return this.translate.instant(nativeTag);
+    }
+
+    return this.resolveErrorValue(firstError.value);
   }
 }

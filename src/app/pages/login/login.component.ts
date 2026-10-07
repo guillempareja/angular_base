@@ -40,7 +40,7 @@ export default class LoginComponent implements OnInit {
   public form!: FormGroup;
 
   // Methods
-  ngOnInit(): void {
+  public ngOnInit(): void {
     this.authService.logout();
     this.buildForm();
   }
@@ -61,6 +61,6 @@ export default class LoginComponent implements OnInit {
       return;
     }
 
-    this.authService.login(this.form.value);
+    void this.authService.login(this.form.value);
   }
 }

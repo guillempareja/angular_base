@@ -9,7 +9,7 @@ export class FormService {
   private translate = inject(TranslateService);
 
   // Methods
-  navigateToFormError(): void {
+  public navigateToFormError(): void {
     const invalidElement = document.querySelector('.ng-invalid');
 
     if (invalidElement) {

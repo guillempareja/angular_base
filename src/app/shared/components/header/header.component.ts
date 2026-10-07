@@ -10,7 +10,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { NgPipesModule } from 'ngx-pipes';
 
 @Component({
-  selector: 'header',
+  selector: 'app-header',
   imports: [NgPipesModule, TranslatePipe],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss',
@@ -22,7 +22,7 @@ export class HeaderComponent implements AfterViewInit {
   public authService = inject(AuthService);
 
   // Methods
-  ngAfterViewInit(): void {
+  public ngAfterViewInit(): void {
     this.updateHeight();
     window.addEventListener('resize', () => this.updateHeight());
   }

@@ -29,7 +29,7 @@ export default class MainComponent implements OnInit {
   public example = signal<GetExampleResponse | null>(null);
 
   // Methods
-  async ngOnInit(): Promise<void> {
+  public async ngOnInit(): Promise<void> {
     const response = await this.exampleService.getExample();
     this.example.set(response);
   }

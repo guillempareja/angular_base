@@ -11,10 +11,16 @@
     "test": "ng test",
     "test:ci": "ng test --watch=false --browsers=ChromeHeadless",
     "lint": "eslint \"src/**/*.{ts,html}\"",
+    "lint:styles": "stylelint \"src/**/*.{css,scss}\"",
     "format": "prettier --write . && stylelint \"src/**/*.{css,scss}\" --fix",
+    "format:check": "prettier --check .",
+    "check": "npm run format:check && npm run lint && npm run lint:styles && npm run test:ci && npm run build",
     "prepare": "husky"
   },
   "private": true,
+  "engines": {
+    "node": ">=20.19.0"
+  },
   "dependencies": {
     "@angular/animations": "^20.1.0",
     "@angular/common": "^20.1.0",

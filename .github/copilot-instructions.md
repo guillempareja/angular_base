@@ -107,17 +107,22 @@ npm start                       # dev server con MSW (http://localhost:4200)
 npm run start:tst               # dev server contra la API de test
 npm run rename -- "Nombre App"  # sustituir los placeholders del template
 npm run format                  # prettier + stylelint --fix (antes de commitear)
-npm run lint                    # ESLint (reglas de arquitectura)
+npm run lint                    # ESLint (reglas de arquitectura y accesibilidad)
+npm run lint:styles             # Stylelint
+npm run format:check            # Prettier en modo comprobación (sin escribir)
 npm test                        # Jasmine + Karma (watch)
 npm run test:ci                 # una pasada headless; falla si cobertura < 80%
+npm run check                   # lo mismo que CI: formato, lint, estilos, tests y build
 npx ng build                    # build de producción
 ```
 
 ## Git
 
-Conventional commits (`feat:`, `fix:`, `refactor:`…). `npm run lint` + `npm run format` antes de commitear.
+Conventional commits (`feat:`, `fix:`, `refactor:`…), validados por el hook `commit-msg`.
+`npm run lint` + `npm run format` antes de commitear.
 Hook `pre-commit` (husky + lint-staged) formatea/valida automáticamente los ficheros staged.
-Hook `pre-push` ejecuta `npm run test:ci`.
+Hook `pre-push` ejecuta `npm run lint` + `npm run test:ci`. CI (`.github/workflows/ci.yml`) repite todo
+en cada push a `main` y en cada PR.
 
 ---
 

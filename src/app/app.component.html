@@ -1,9 +1,9 @@
-<header></header>
+<header><app-header></app-header></header>
 <main>
   <router-outlet></router-outlet>
 </main>
-<footer></footer>
+<footer><app-footer></app-footer></footer>
 
 @if (loaderService.isLoading()) {
-  <global-loader></global-loader>
+  <app-global-loader></app-global-loader>
 }

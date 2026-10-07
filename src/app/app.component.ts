@@ -29,7 +29,7 @@ export class AppComponent implements OnInit {
   public loaderService = inject(LoaderService);
 
   // Methods
-  ngOnInit(): void {
+  public ngOnInit(): void {
     this.authService.loadSession();
   }
 }

@@ -15,7 +15,7 @@ export class IsInvalidControlPipe implements PipeTransform {
    * @param checkDirty - Flag to check for 'dirty' state in addition to 'touched' (default: false).
    * @returns True if the control is invalid and has been interacted with; otherwise, false.
    */
-  transform(
+  public transform(
     form: AbstractControl,
     field?: string,
     errorName?: string,

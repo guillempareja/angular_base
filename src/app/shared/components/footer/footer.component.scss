@@ -1,5 +1,9 @@
 @use 'imports' as *;
 
+:host {
+  display: block;
+}
+
 .footer-container {
   background: lightblue;
 
